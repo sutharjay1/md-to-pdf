@@ -1,6 +1,12 @@
 import { Download } from "lucide-react";
 import { Button } from "@md-to-pdf/ui/components/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@md-to-pdf/ui/components/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@md-to-pdf/ui/components/select";
 import { copy } from "@/copy";
 import type { Page } from "@/lib/storage";
 
@@ -13,7 +19,14 @@ type Props = {
   children?: React.ReactNode; // theme toggle slot
 };
 
-export function AppBar({ page, onPageChange, onDownload, downloadDisabled, downloadLabel, children }: Props) {
+export function AppBar({
+  page,
+  onPageChange,
+  onDownload,
+  downloadDisabled,
+  downloadLabel,
+  children,
+}: Props) {
   return (
     <header className="h-11 shrink-0 flex items-center justify-between px-4 border-b">
       <span className="font-medium">{copy.wordmark}</span>
@@ -27,7 +40,7 @@ export function AppBar({ page, onPageChange, onDownload, downloadDisabled, downl
           >
             <SelectValue />
           </SelectTrigger>
-          <SelectContent position="popper" align="end" sideOffset={4} className="p-1">
+          <SelectContent position="popper" align="end" sideOffset={4}>
             <SelectItem value="A4" className="px-2 py-1 text-[13px]">
               {copy.pageSizes.A4}
             </SelectItem>
@@ -41,10 +54,12 @@ export function AppBar({ page, onPageChange, onDownload, downloadDisabled, downl
           onClick={onDownload}
           disabled={downloadDisabled}
           aria-label={downloadLabel}
-          className="h-8 gap-2 px-3 text-background active:scale-[0.97] transition-transform duration-(--dur-fast)"
+          className="gap-2 px-3 h-7 text-background active:scale-[0.97] transition-transform duration-(--dur-fast)"
         >
           <Download aria-hidden strokeWidth={1.5} className="size-4" />
-          <span className="hidden text-[15px] font-medium lg:inline">{downloadLabel}</span>
+          <span className="hidden text-[15px] font-medium lg:inline">
+            {downloadLabel}
+          </span>
         </Button>
       </div>
     </header>
