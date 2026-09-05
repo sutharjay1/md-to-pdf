@@ -12,7 +12,7 @@
   "dependencies": {
     "@md-to-pdf/markdown": "workspace:*",
     "@md-to-pdf/ui": "workspace:*",
-    "lucide-react": "latest",
+    "lucide-react": "^1.41",
     "morphdom": "^2.7",
     "react": "^19",
     "react-dom": "^19",

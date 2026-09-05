@@ -1,5 +1,7 @@
 # md-to-pdf
 
+Live at https://mdtopdf.in.
+
 A single-page web app that turns markdown into a good-looking PDF, with markdown
 on the left, the rendered result on the right, and no accounts, setup, or
 cloud storage.
@@ -64,7 +66,7 @@ pnpm -F worker exec wrangler secret put CF_ACCOUNT_ID
 Then build and deploy:
 
 ```bash
-pnpm deploy
+pnpm run deploy
 ```
 
 This runs `web#build` (the Vite build plus the bundle budget check) and then
@@ -103,8 +105,3 @@ Everything else in image syntax stays a plain `<img>`.
 ## Copy
 
 All user-facing strings live in `apps/web/src/copy.ts`.
-
-## Further reading
-
-- Design spec: `docs/superpowers/specs/2026-09-05-md-to-pdf-design.md`
-- Implementation plan: `docs/superpowers/plans/2026-09-05-md-to-pdf.md`

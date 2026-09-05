@@ -7,3 +7,4 @@ dist
 apps/web/public/fonts
 coverage
 .claude/launch.json
+docs/superpowers

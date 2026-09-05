@@ -24,7 +24,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/ui
       lucide-react:
-        specifier: latest
+        specifier: ^1.41
         version: 1.41.0(react@19.2.8)
       morphdom:
         specifier: ^2.7
@@ -91,7 +91,7 @@ importers:
   apps/worker:
     devDependencies:
       '@cloudflare/workers-types':
-        specifier: latest
+        specifier: ^5.20260905
         version: 5.20260905.1
       '@md-to-pdf/tsconfig':
         specifier: workspace:*
@@ -145,7 +145,7 @@ importers:
         specifier: ^2
         version: 2.1.1
       lucide-react:
-        specifier: latest
+        specifier: ^1.41
         version: 1.41.0(react@19.2.8)
       radix-ui:
         specifier: ^1
@@ -175,12 +175,6 @@ importers:
       typescript:
         specifier: ^5.8
         version: 5.9.3
-      vite:
-        specifier: ^7
-        version: 7.3.6(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.32.0)
-      vitest:
-        specifier: ^3
-        version: 3.2.7(@types/node@22.20.1)(jiti@2.7.0)(jsdom@26.1.0)(lightningcss@1.32.0)
 
 packages:
 
