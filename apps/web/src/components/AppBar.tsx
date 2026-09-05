@@ -54,12 +54,10 @@ export function AppBar({
           onClick={onDownload}
           disabled={downloadDisabled}
           aria-label={downloadLabel}
-          className="gap-2 px-3 h-7 text-background active:scale-[0.97] transition-transform duration-(--dur-fast)"
+          className="h-7 text-background active:scale-[0.97] transition-transform duration-(--dur-fast)"
         >
-          <Download aria-hidden strokeWidth={1.5} className="size-4" />
-          <span className="hidden text-[15px] font-medium lg:inline">
-            {downloadLabel}
-          </span>
+          <Download aria-hidden className="size-3.5" />
+          <span className="hidden text-xs lg:inline">{downloadLabel}</span>
         </Button>
       </div>
     </header>
