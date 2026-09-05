@@ -1941,6 +1941,7 @@ function PDFViewerInner({
   const { state: zoomState, provides: zoom } = useZoom(documentId)
   const { provides: thumbnails } = useThumbnailCapability()
   const { plugin: thumbnailPlugin } = useThumbnailPlugin()
+  const { provides: viewportCapability } = useViewportCapability()
   const [sidebarOpen, setSidebarOpen] = React.useState(false)
   const [isPreparingDownload, setIsPreparingDownload] = React.useState(false)
   const [pageRotationDeltas, setPageRotationDeltas] =
@@ -2028,13 +2029,33 @@ function PDFViewerInner({
   // The zoom plugin only releases its viewport gate for mode-based zoom
   // levels (automatic/fit); with a numeric default the gate would never
   // lift, so apply the initial zoom explicitly once the document loads.
+  // The plugin also drops the request while the viewport still measures
+  // 0x0, which happens whenever the document resolves before the
+  // viewport's first ResizeObserver delivery (blob: sources load from
+  // memory and usually win that race), so wait for real metrics.
   const initialZoomDocumentRef = React.useRef<string | null>(null)
   React.useEffect(() => {
-    if (!pdfDocument || !zoom) return
+    if (!pdfDocument || !zoom || !viewportCapability) return
     if (initialZoomDocumentRef.current === documentId) return
-    initialZoomDocumentRef.current = documentId
-    zoom.requestZoom(defaultZoom)
-  }, [defaultZoom, documentId, pdfDocument, zoom])
+    const viewportScope = viewportCapability.forDocument(documentId)
+    let applied = false
+    const applyInitialZoom = () => {
+      if (applied) return
+      let metrics
+      try {
+        metrics = viewportScope.getMetrics()
+      } catch {
+        return
+      }
+      if (!metrics.clientWidth || !metrics.clientHeight) return
+      applied = true
+      initialZoomDocumentRef.current = documentId
+      zoom.requestZoom(defaultZoom)
+    }
+    applyInitialZoom()
+    if (applied) return
+    return viewportScope.onViewportChange(applyInitialZoom)
+  }, [defaultZoom, documentId, pdfDocument, viewportCapability, zoom])
   const scrollToPage = React.useCallback(
     (pageNumber: number, options?: ScrollIntoViewOptions) => {
       scroll?.scrollToPage({
