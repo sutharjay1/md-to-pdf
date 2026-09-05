@@ -9,6 +9,7 @@ beforeEach(() => {
 it("defaults to light, toggles, persists, and sets the class", () => {
   const { result } = renderHook(() => useTheme());
   expect(result.current.theme).toBe("light");
+  expect(localStorage.getItem("md2pdf:theme")).toBeNull();
   act(() => result.current.toggle());
   expect(result.current.theme).toBe("dark");
   expect(document.documentElement).toHaveClass("dark");
