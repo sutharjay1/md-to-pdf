@@ -1,0 +1,40 @@
+{
+  "name": "web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node scripts/copy-fonts.mjs && vite build && node scripts/check-budget.mjs",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "postinstall": "node scripts/copy-fonts.mjs"
+  },
+  "dependencies": {
+    "@md-to-pdf/markdown": "workspace:*",
+    "@md-to-pdf/ui": "workspace:*",
+    "highlight.js": "^11",
+    "lucide-react": "latest",
+    "morphdom": "^2.7",
+    "react": "^19",
+    "react-dom": "^19",
+    "sonner": "^2"
+  },
+  "devDependencies": {
+    "@fontsource-variable/geist-mono": "^5",
+    "@fontsource-variable/inter": "^5",
+    "@md-to-pdf/tsconfig": "workspace:*",
+    "@tailwindcss/vite": "^4",
+    "@testing-library/jest-dom": "^6",
+    "@testing-library/react": "^16",
+    "@testing-library/user-event": "^14",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4",
+    "jsdom": "^26",
+    "tailwindcss": "^4",
+    "typescript": "^5.8",
+    "vite": "^7",
+    "vitest": "^3"
+  }
+}

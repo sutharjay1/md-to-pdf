@@ -1,0 +1,8 @@
+{
+  "extends": "@md-to-pdf/tsconfig/base.json",
+  "include": ["src", "test"],
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM"],
+    "types": ["vitest/globals"]
+  }
+}

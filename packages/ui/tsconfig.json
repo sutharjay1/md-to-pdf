@@ -1,0 +1,8 @@
+{
+  "extends": "@md-to-pdf/tsconfig/react.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": { "@md-to-pdf/ui/*": ["./src/*"] }
+  }
+}
