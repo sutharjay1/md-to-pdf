@@ -9,8 +9,8 @@ Repo: https://github.com/sutharjay1/md-to-pdf (private)
 ## 1. What this is
 
 A single-page web app. Markdown on the left, the result on the right. The
-right pane has three views: the rendered document, the raw HTML, and the PDF.
-The PDF can be downloaded.
+right pane has two views: the rendered document and the raw HTML. One button
+downloads the PDF.
 
 It exists for one job: turn a markdown file into a good-looking PDF with no
 setup. Nothing else. No accounts, no cloud storage, no sharing, no analytics.
@@ -79,7 +79,7 @@ browser (static SPA, Vite build, served as Workers static assets)
   ├─ render        markdown → HTML fragment (marked + GFM + video + highlight.js)
   ├─ Preview tab   fragment patched into the DOM with morphdom
   ├─ HTML tab      fragment shown as highlighted source, Copy
-  └─ PDF tab       POST /api/pdf {html, page} → PDF blob → Extend UI viewer (lazy), Download
+  └─ Download      POST /api/pdf {html, page} → PDF blob → saved as <title-slug>.pdf
 
 worker (one route: POST /api/pdf)
   ├─ validates body (size, page value)
@@ -163,7 +163,7 @@ All user-facing text, decided. Sentence case throughout. No exclamation marks.
 | Left pane, open file | `Open` |
 | Word count | `1 word` / `1,204 words` |
 | Editor placeholder | `Write markdown here. It saves as you type.` |
-| Segmented control | `Preview` · `HTML` · `PDF` (mobile adds `Write` first) |
+| Segmented control | `Preview` · `HTML` (mobile adds `Write` first) |
 | Preview, empty | `Nothing to preview yet.` |
 | HTML tab, action | `Copy` → `Copied` (reverts after 1.5 s) |
 | HTML tab, empty | `No HTML yet.` |
@@ -414,7 +414,6 @@ every transition entirely: states change instantly, nothing parks or jumps.
 - Every icon button has an `aria-label` and a tooltip.
 - Toasts use `aria-live="polite"`.
 - Colour contrast meets AA on every pair; the orange pair is measured, not assumed.
-- The PDF preview container is a labelled `region` (`PDF preview`).
 
 ---
 
