@@ -137,7 +137,7 @@ Desktop (≥ 1024px):
   width, immediately left of the download button.
 - Left pane header: label "Markdown", word count right-aligned in
   `--muted-foreground`, `tabular-nums`. Also an **Open** ghost button that
-  accepts `.md` / `.markdown` / `.txt` files.
+  accepts `.md` / `.mdx` / `.markdown` / `.txt` files.
 - Right pane header: segmented control **Preview · HTML** on the left,
   a contextual action on the right (see §8).
 - Content sits directly on `--background`. No cards.
@@ -172,7 +172,7 @@ All user-facing text, decided. Sentence case throughout. No exclamation marks.
 | Download, error (generic) | toast `Couldn't render the PDF.` |
 | Download, error (rate limit) | toast `Too many requests. Wait a moment and try again.` |
 | Download, error (too large) | toast `The document is too large to render. Trim it to under 2 MB of HTML.` |
-| Open file, wrong type | `Open a .md, .markdown or .txt file.` |
+| Open file, wrong type | `Open a .md, .mdx, .markdown or .txt file.` |
 | Open file, replaces content | no confirmation dialog; the current doc is kept in a one-step undo: `Replaced with <name>.` + `Undo` (a toast, 6 s) |
 | Downloaded filename | `<title-slug>.pdf`, fallback `document.pdf` |
 | Footer (none) | — there is no footer |
@@ -436,7 +436,7 @@ is not adopted.
 
 - Render errors in `marked` are impossible by design (it never throws on input);
   highlight failures fall back to plain `<code>`.
-- Worker errors surface as the PDF-tab messages in §6. The client retries
+- Worker errors surface as the Download toast messages in §6. The client retries
   nothing automatically.
 - Clipboard write failure shows the toast `Couldn't copy. Select the text and copy it instead.`
 - localStorage failure is silent (see §11).
