@@ -16,6 +16,12 @@ function post(body: unknown, headers: Record<string, string> = { "content-type":
   return new Request("https://app.test/api/pdf", { method: "POST", headers, body: typeof body === "string" ? body : JSON.stringify(body) });
 }
 
+it("returns 503 when the renderer is not configured", async () => {
+  const unconfigured = { ...env, CF_ACCOUNT_ID: "", CF_API_TOKEN: "" };
+  const res = await handlePdf(post({ html: "<p/>", page: "A4" }), unconfigured);
+  expect(res.status).toBe(503);
+});
+
 it("rejects non-json and bad page values", async () => {
   expect((await handlePdf(post("x", { "content-type": "text/plain" }), env)).status).toBe(400);
   expect((await handlePdf(post({ html: "<p/>", page: "Tabloid" }), env)).status).toBe(400);

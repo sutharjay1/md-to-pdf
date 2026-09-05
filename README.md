@@ -20,7 +20,19 @@ To work on the UI alone, without the PDF route:
 pnpm -F web dev
 ```
 
-To run the full app, including the Worker's `/api/pdf` route:
+To also use the PDF tab while developing, run the Worker in a second
+terminal alongside Vite:
+
+```bash
+pnpm -F worker dev
+```
+
+Keep using `http://localhost:5173`; Vite proxies `/api` requests to the
+Worker on port 8787. Without `apps/worker/.dev.vars`, the PDF tab shows a
+message saying rendering is not set up yet, instead of failing silently.
+
+To run the full built app from the Worker alone, including the `/api/pdf`
+route:
 
 ```bash
 pnpm build && pnpm -F worker dev

@@ -1,6 +1,6 @@
 import type { Page } from "@/lib/storage";
 
-export type PdfErrorCode = "rate-limited" | "too-large" | "failed";
+export type PdfErrorCode = "rate-limited" | "too-large" | "not-configured" | "failed";
 
 export class PdfError extends Error {
   constructor(public code: PdfErrorCode) {
@@ -16,6 +16,7 @@ export async function requestPdf(html: string, page: Page, fetchImpl: typeof fet
   });
   if (res.status === 429) throw new PdfError("rate-limited");
   if (res.status === 413) throw new PdfError("too-large");
+  if (res.status === 503) throw new PdfError("not-configured");
   if (!res.ok) throw new PdfError("failed");
   return res.blob();
 }

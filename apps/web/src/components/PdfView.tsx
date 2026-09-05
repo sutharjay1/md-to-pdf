@@ -11,6 +11,7 @@ type Props = { status: PdfStatus; url: string | null; error: PdfErrorCode | null
 const messages: Record<PdfErrorCode, string> = {
   "rate-limited": copy.pdfRateLimited,
   "too-large": copy.pdfTooLarge,
+  "not-configured": copy.pdfNotConfigured,
   failed: copy.pdfError,
 };
 

@@ -16,6 +16,7 @@ it("posts html and page and returns a blob", async () => {
 it.each([
   [429, "rate-limited"],
   [413, "too-large"],
+  [503, "not-configured"],
   [502, "failed"],
 ])("maps %s to %s", async (status, code) => {
   const fetchImpl = async () => new Response("", { status });

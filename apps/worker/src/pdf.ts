@@ -43,6 +43,8 @@ function toBase64(buf: ArrayBuffer): string {
 export async function handlePdf(request: Request, env: Env, fetchImpl: typeof fetch = fetch): Promise<Response> {
   if (!isSameOrigin(request)) return new Response("Forbidden", { status: 403 });
 
+  if (!env.CF_ACCOUNT_ID || !env.CF_API_TOKEN) return new Response("Renderer not configured", { status: 503 });
+
   if (!request.headers.get("content-type")?.includes("application/json")) {
     return new Response("Expected application/json", { status: 400 });
   }
