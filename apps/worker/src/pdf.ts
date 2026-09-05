@@ -90,6 +90,9 @@ export async function handlePdf(request: Request, env: Env, fetchImpl: typeof fe
   });
 
   if (upstream.status === 429) return new Response("Rate limited", { status: 429 });
-  if (!upstream.ok) return new Response("Renderer failed", { status: 502 });
+  if (!upstream.ok) {
+    console.error("browser rendering failed", upstream.status, (await upstream.text()).slice(0, 600));
+    return new Response("Renderer failed", { status: 502 });
+  }
   return new Response(upstream.body, { headers: { "content-type": "application/pdf", "cache-control": "no-store" } });
 }
