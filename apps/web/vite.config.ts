@@ -22,8 +22,5 @@ export default defineConfig({
   resolve: { alias: { "@": path.resolve(__dirname, "src") } },
   build: {
     target: "es2022",
-    rollupOptions: {
-      output: { manualChunks: { highlight: ["highlight.js/lib/core"] } },
-    },
   },
 });

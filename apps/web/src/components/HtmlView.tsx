@@ -26,3 +26,5 @@ export function HtmlView({ html }: Props) {
     </pre>
   );
 }
+
+export default HtmlView;

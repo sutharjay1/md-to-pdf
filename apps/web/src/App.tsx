@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Toaster } from "@md-to-pdf/ui/components/sonner";
 import { Button } from "@md-to-pdf/ui/components/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@md-to-pdf/ui/components/select";
@@ -7,7 +7,6 @@ import { filenameFrom, titleFrom } from "@md-to-pdf/markdown";
 import { AppBar } from "@/components/AppBar";
 import { CopyButton } from "@/components/CopyButton";
 import { EditorPane } from "@/components/EditorPane";
-import { HtmlView } from "@/components/HtmlView";
 import { Pane } from "@/components/Pane";
 import { PdfView } from "@/components/PdfView";
 import { PreviewView } from "@/components/PreviewView";
@@ -19,6 +18,8 @@ import { usePdf } from "@/hooks/usePdf";
 import { useRendered } from "@/hooks/useRendered";
 import { useTheme } from "@/hooks/useTheme";
 import { loadPrefs, savePrefs, type Page } from "@/lib/storage";
+
+const HtmlView = lazy(() => import("@/components/HtmlView"));
 
 const outputTabs: { value: View; label: string }[] = [
   { value: "preview", label: copy.tabs.preview },
@@ -117,7 +118,11 @@ export default function App() {
           >
             <div key={outputView} className="h-full animate-in fade-in duration-(--dur-base)">
               {outputView === "preview" && <PreviewView html={html} />}
-              {outputView === "html" && <HtmlView html={html} />}
+              {outputView === "html" && (
+                <Suspense fallback={null}>
+                  <HtmlView html={html} />
+                </Suspense>
+              )}
               {outputView === "pdf" && (
                 <PdfView
                   status={pdf.status}
