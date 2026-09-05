@@ -7,6 +7,7 @@ export const copy = {
   editorLabel: "Markdown",
   open: "Open",
   editorPlaceholder: "Write markdown here. It saves as you type.",
+  editorTabHint: "Press Escape, then Tab, to leave the editor.",
   tabs: { write: "Write", preview: "Preview", html: "HTML", pdf: "PDF" },
   previewEmpty: "Nothing to preview yet.",
   htmlEmpty: "No HTML yet.",

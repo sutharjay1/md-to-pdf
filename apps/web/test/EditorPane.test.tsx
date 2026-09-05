@@ -20,3 +20,13 @@ it("rejects wrong file types", async () => {
   await userEvent.upload(input, new File(["x"], "a.pdf", { type: "application/pdf" }));
   expect(onChange).not.toHaveBeenCalled();
 });
+
+it("leaves the editor on Escape then Tab instead of inserting", async () => {
+  const onChange = vi.fn();
+  render(<EditorPane doc="one two" onChange={onChange} />);
+  const box = screen.getByRole("textbox", { name: "Markdown" });
+  box.focus();
+  await userEvent.keyboard("{Escape}{Tab}");
+  expect(onChange).not.toHaveBeenCalled();
+  expect(document.activeElement).not.toBe(box);
+});

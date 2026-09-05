@@ -11,8 +11,18 @@ const ACCEPT = /\.(md|markdown|txt)$/i;
 
 export function EditorPane({ doc, onChange, className }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
+  const leaveOnTab = useRef(false);
 
   function onKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Escape") {
+      leaveOnTab.current = true;
+      return;
+    }
+    if (e.key === "Tab" && leaveOnTab.current) {
+      leaveOnTab.current = false;
+      return;
+    }
+    leaveOnTab.current = false;
     if (e.key !== "Tab" || e.shiftKey) return;
     e.preventDefault();
     const el = e.currentTarget;
@@ -55,8 +65,12 @@ export function EditorPane({ doc, onChange, className }: Props) {
         </>
       }
     >
+      <p id="editor-tab-hint" className="sr-only">
+        {copy.editorTabHint}
+      </p>
       <textarea
         aria-label={copy.editorLabel}
+        aria-describedby="editor-tab-hint"
         value={doc}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={onKeyDown}
