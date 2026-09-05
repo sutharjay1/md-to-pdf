@@ -1,7 +1,6 @@
 import { Marked, type MarkedExtension } from "marked";
 import { markedHighlight } from "marked-highlight";
 import markedFootnote from "marked-footnote";
-import markedAlert from "marked-alert";
 import { gfmHeadingId } from "marked-gfm-heading-id";
 import { frontMatterHtml, splitFrontMatter } from "./frontmatter";
 import { escapeHtml, highlightCode } from "./highlight";
@@ -9,6 +8,7 @@ import { videoExtension } from "./video";
 
 const HAS_MATH = /\$/;
 const HAS_EMOJI = /:[a-z0-9_+-]+:/;
+const HAS_ALERT = /^\s{0,3}>\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]/im;
 
 function baseExtensions(): MarkedExtension[] {
   return [
@@ -20,7 +20,6 @@ function baseExtensions(): MarkedExtension[] {
     }),
     gfmHeadingId(),
     markedFootnote(),
-    markedAlert(),
     videoExtension,
     {
       gfm: true,
@@ -42,9 +41,13 @@ function baseExtensions(): MarkedExtension[] {
   ];
 }
 
-/** Math and emoji pull in KaTeX and the emoji table, so each is loaded only for documents that use it. */
-async function optionalExtensions(math: boolean, emoji: boolean): Promise<MarkedExtension[]> {
+/** Math, emoji and alerts each carry their own payload, so each is loaded only for documents that use it. */
+async function optionalExtensions(math: boolean, emoji: boolean, alert: boolean): Promise<MarkedExtension[]> {
   const list: MarkedExtension[] = [];
+  if (alert) {
+    const { default: markedAlert } = await import("marked-alert");
+    list.push(markedAlert());
+  }
   if (math) {
     const { default: markedKatex } = await import("marked-katex-extension");
     list.push(markedKatex({ throwOnError: false, output: "mathml" }));
@@ -61,10 +64,11 @@ const instances = new Map<string, Promise<Marked>>();
 function instanceFor(markdown: string): Promise<Marked> {
   const math = HAS_MATH.test(markdown);
   const emoji = HAS_EMOJI.test(markdown);
-  const key = `${math}:${emoji}`;
+  const alert = HAS_ALERT.test(markdown);
+  const key = `${math}:${emoji}:${alert}`;
   let instance = instances.get(key);
   if (!instance) {
-    instance = optionalExtensions(math, emoji).then((extra) => new Marked(...extra, ...baseExtensions()));
+    instance = optionalExtensions(math, emoji, alert).then((extra) => new Marked(...extra, ...baseExtensions()));
     instances.set(key, instance);
   }
   return instance;
