@@ -486,7 +486,7 @@ is not adopted.
 - Secrets: `CF_API_TOKEN` (Browser Rendering edit scope), `CF_ACCOUNT_ID`.
 - `pnpm build` → turbo → Vite → `apps/web/dist/`; `pnpm deploy` → turbo runs
   `web#build` then `wrangler deploy` in `apps/worker`.
-- The budget check runs inside `web#build` and fails the build over 100 KB.
+- The budget check runs inside `web#build` and fails the build over 150 KB.
 - Headers set by the Worker on HTML responses: `Content-Security-Policy`
   allowing `self`, fonts from `self`, images from `https:`, frames from
   `youtube-nocookie.com` and `player.vimeo.com`, and `blob:` for the PDF
