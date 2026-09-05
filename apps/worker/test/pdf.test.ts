@@ -48,3 +48,42 @@ it("maps upstream 429 to 429 and other failures to 502", async () => {
   const broken = async () => new Response("nope", { status: 500 });
   expect((await handlePdf(post({ html: "<p/>", page: "A4" }), env, broken as unknown as typeof fetch)).status).toBe(502);
 });
+
+it("maps a failed asset load to 502 and retries (not sticks) on the next request", async () => {
+  vi.resetModules();
+  const { handlePdf: freshHandlePdf } = await import("../src/pdf");
+
+  const brokenAssets = {
+    ...env,
+    ASSETS: {
+      fetch: async (req: Request) => {
+        const url = new URL(req.url);
+        if (url.pathname === "/prose.css") return new Response("not found", { status: 404 });
+        return new Response(new Uint8Array([1, 2, 3]));
+      },
+    } as unknown as Fetcher,
+  };
+
+  const failed = await freshHandlePdf(post({ html: "<p/>", page: "A4" }), brokenAssets);
+  expect(failed.status).toBe(502);
+
+  const fetchImpl = async () => new Response(new Uint8Array([37, 80, 68, 70]), { headers: { "content-type": "application/pdf" } });
+  const ok = await freshHandlePdf(post({ html: "<p/>", page: "A4" }), env, fetchImpl as unknown as typeof fetch);
+  expect(ok.status).toBe(200);
+});
+
+it("rejects cross-origin requests and accepts a matching origin", async () => {
+  const crossOrigin = post(
+    { html: "<p/>", page: "A4" },
+    { "content-type": "application/json", origin: "https://evil.example" },
+  );
+  expect((await handlePdf(crossOrigin, env)).status).toBe(403);
+
+  const fetchImpl = async () => new Response(new Uint8Array([37, 80, 68, 70]), { headers: { "content-type": "application/pdf" } });
+  const sameOrigin = post(
+    { html: "<p/>", page: "A4" },
+    { "content-type": "application/json", origin: "https://app.test" },
+  );
+  const res = await handlePdf(sameOrigin, env, fetchImpl as unknown as typeof fetch);
+  expect(res.status).toBe(200);
+});

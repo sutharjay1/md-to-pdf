@@ -40,10 +40,11 @@ export function usePdf(html: string, page: Page) {
     const blob = status === "fresh" && blobRef.current ? blobRef.current : await render();
     if (!blob) return;
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
+    const href = URL.createObjectURL(blob);
+    a.href = href;
     a.download = filename;
     a.click();
-    URL.revokeObjectURL(a.href);
+    setTimeout(() => URL.revokeObjectURL(href), 0);
   }, [status, render]);
 
   return { status, url, error, render, download };

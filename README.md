@@ -58,6 +58,11 @@ This runs `web#build` (the Vite build plus the bundle budget check) and then
 `wrangler deploy` from `apps/worker`, which serves `apps/web/dist` as static
 assets and handles `/api/*` routes itself.
 
+`/api/pdf` only accepts same-origin requests, but that is not a substitute
+for rate limiting: a Cloudflare rate-limiting rule on `/api/pdf` is
+recommended to keep any one client from draining the Browser Rendering
+quota.
+
 ## Limits
 
 The PDF route runs on Cloudflare's Browser Rendering, which has real limits.
