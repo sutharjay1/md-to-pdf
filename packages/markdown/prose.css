@@ -46,6 +46,14 @@
 .doc figcaption { font-size: 0.85em; color: var(--muted-foreground, #737373); margin-top: 0.4em; }
 .doc .video-placeholder { display: none; }
 .doc .footnotes { font-size: 0.85em; color: var(--muted-foreground, #737373); margin-top: 2em; }
+.doc a.ref { display: inline-flex; align-items: center; gap: 0.5em; max-width: 100%; padding: 0.25em 0.65em; border: 1px solid var(--border, #e5e5e5); border-radius: 6px; text-decoration: none; font-size: 0.9em; line-height: 1.4; vertical-align: middle; }
+.doc a.ref .ref-provider { font-size: 0.72em; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted-foreground, #737373); flex: none; }
+.doc a.ref .ref-id { font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85em; color: var(--muted-foreground, #737373); flex: none; }
+.doc a.ref .ref-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.doc a.ref .ref-state { flex: none; margin-left: auto; font-size: 0.72em; font-weight: 600; padding: 0.1em 0.55em; border-radius: 999px; color: #fff; background: #737373; }
+.doc a.ref .ref-state[data-state="open"] { background: #1a7f37; }
+.doc a.ref .ref-state[data-state="merged"] { background: #8250df; }
+.doc a.ref .ref-state[data-state="closed"] { background: #cf222e; }
 .doc figure.diagram { margin: 0 0 1em; text-align: center; overflow-x: auto; }
 .doc figure.diagram svg { max-width: 100%; height: auto; }
 .doc pre.mermaid-error::before { content: attr(data-error); display: block; font-family: inherit; color: #cf222e; margin-bottom: 0.5em; }
@@ -95,6 +103,8 @@
   .doc details:not([open]) > :not(summary) { display: block; }
   .doc .markdown-alert { background: #f5f5f5; }
   .doc kbd { border-color: #e5e5e5; background: #f5f5f5; }
+  .doc a.ref { border-color: #e5e5e5; break-inside: avoid; }
+  .doc a.ref .ref-state { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .doc thead { display: table-header-group; }
   .doc pre { white-space: pre-wrap; word-break: break-word; background: #f5f5f5; }
   .doc a { color: #171717; text-decoration-color: #737373; }

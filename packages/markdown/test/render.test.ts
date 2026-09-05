@@ -82,3 +82,10 @@ it("turns leading front matter into a table and drops it from the body", async (
   expect(html).toContain('<h1 id="doc">');
   expect(html).not.toContain("<hr>");
 });
+
+it("turns bare issue and PR links into reference cards and leaves titled links alone", async () => {
+  const html = await render("<https://github.com/o/r/issues/1>\n\nhttps://gitlab.com/g/p/-/merge_requests/2\n\n[the fix](https://github.com/o/r/pull/3)");
+  expect(html).toContain('<a class="ref" data-provider="github" data-kind="issue"');
+  expect(html).toContain('<a class="ref" data-provider="gitlab" data-kind="mr"');
+  expect(html).toContain('<a href="https://github.com/o/r/pull/3" target="_blank" rel="noopener">the fix</a>');
+});

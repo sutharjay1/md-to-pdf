@@ -102,6 +102,19 @@ placeholder for the PDF, since the PDF cannot play video:
 
 Everything else in image syntax stays a plain `<img>`.
 
+## Rich markdown
+
+Beyond GFM, the renderer handles:
+
+- Mermaid diagrams in ```` ```mermaid ```` fences, drawn in the browser and carried into the PDF as SVG.
+- Math in `$…$` and `$$…$$`, emitted as MathML so the PDF needs no extra fonts.
+- Emoji shortcodes such as `:rocket:`.
+- YAML front matter at the top of the file, shown as a small table; its `title` names the tab and the PDF file.
+- GitHub alerts: `> [!NOTE]`, `TIP`, `IMPORTANT`, `WARNING`, `CAUTION`.
+- Reference cards for bare links to GitHub issues and pull requests or GitLab issues and merge requests, showing the provider, `owner/repo#123`, the title and the state. Details come from the public APIs in the reader's browser, unauthenticated, so private repos show the basic card and GitHub allows 60 lookups per hour per IP.
+
+Everything above loads lazily, only for documents that use it.
+
 ## Copy
 
 All user-facing strings live in `apps/web/src/copy.ts`.

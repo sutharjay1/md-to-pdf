@@ -4,6 +4,7 @@ import markedFootnote from "marked-footnote";
 import { gfmHeadingId } from "marked-gfm-heading-id";
 import { frontMatterHtml, splitFrontMatter } from "./frontmatter";
 import { escapeHtml, highlightCode } from "./highlight";
+import { classifyRef, refHtml } from "./refs";
 import { videoExtension } from "./video";
 
 const HAS_MATH = /\$/;
@@ -29,6 +30,9 @@ function baseExtensions(): MarkedExtension[] {
           return `<pre class="mermaid">${token.text}</pre>\n`;
         },
         link({ href, title, tokens }) {
+          const bare = tokens.length === 1 && tokens[0].type === "text" && tokens[0].text === href;
+          const ref = bare ? classifyRef(href) : null;
+          if (ref) return refHtml(ref, href);
           const text = this.parser.parseInline(tokens);
           const external = /^https?:\/\//i.test(href);
           const attrs = [`href="${escapeHtml(href)}"`, title ? `title="${escapeHtml(title)}"` : "", external ? 'target="_blank" rel="noopener"' : ""]
