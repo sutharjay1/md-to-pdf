@@ -36,7 +36,7 @@ it("forwards to browser rendering and streams the pdf back", async () => {
   const fetchImpl = vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
     const body = JSON.parse(init!.body as string);
     expect(body.html).toContain('<body class="doc"><p>hi</p></body>');
-    expect(body.pdfOptions.format).toBe("Letter");
+    expect(body.pdfOptions.format).toBe("letter");
     expect(body.rejectResourceTypes).toEqual(["script"]);
     return new Response(new Uint8Array([37, 80, 68, 70]), { headers: { "content-type": "application/pdf" } });
   });

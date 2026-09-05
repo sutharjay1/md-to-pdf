@@ -81,7 +81,7 @@ export async function handlePdf(request: Request, env: Env, fetchImpl: typeof fe
       rejectResourceTypes: ["script"],
       gotoOptions: { waitUntil: "networkidle0", timeout: 20000 },
       pdfOptions: {
-        format: body.page,
+        format: body.page.toLowerCase(),
         printBackground: true,
         preferCSSPageSize: false,
         margin: { top: "20mm", right: "18mm", bottom: "22mm", left: "18mm" },
