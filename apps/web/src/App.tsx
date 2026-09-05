@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Toaster } from "@md-to-pdf/ui/components/sonner";
+import { titleFrom } from "@md-to-pdf/markdown";
 import { AppBar } from "@/components/AppBar";
+import { EditorPane } from "@/components/EditorPane";
 import { Pane } from "@/components/Pane";
 import { SegmentedControl, type View } from "@/components/SegmentedControl";
 import { copy } from "@/copy";
+import { useDocument } from "@/hooks/useDocument";
 
 const outputTabs: { value: View; label: string }[] = [
   { value: "preview", label: copy.tabs.preview },
@@ -14,6 +18,11 @@ const mobileTabs: { value: View; label: string }[] = [{ value: "write", label: c
 export default function App() {
   const [view, setView] = useState<View>("preview");
   const outputView = view === "write" ? "preview" : view;
+  const { doc, setDoc } = useDocument();
+
+  useEffect(() => {
+    document.title = copy.title(titleFrom(doc));
+  }, [doc]);
 
   return (
     <div className="h-dvh flex flex-col">
@@ -22,12 +31,7 @@ export default function App() {
         <SegmentedControl value={view} onChange={setView} options={mobileTabs} />
       </div>
       <main className="min-h-0 flex-1 grid lg:grid-cols-2">
-        <Pane
-          header={<span className="text-muted-foreground">{copy.editorLabel}</span>}
-          className={`lg:border-r ${view === "write" ? "" : "hidden lg:flex"}`}
-        >
-          <textarea aria-label={copy.editorLabel} className="w-full h-full p-6 font-mono resize-none bg-transparent outline-none" />
-        </Pane>
+        <EditorPane doc={doc} onChange={setDoc} className={`lg:border-r ${view === "write" ? "" : "hidden lg:flex"}`} />
         <Pane
           header={<SegmentedControl value={outputView} onChange={setView} options={outputTabs} />}
           className={view === "write" ? "hidden lg:flex" : ""}
@@ -35,6 +39,7 @@ export default function App() {
           <div className="p-10 text-muted-foreground">{copy.previewEmpty}</div>
         </Pane>
       </main>
+      <Toaster position="bottom-center" />
     </div>
   );
 }
