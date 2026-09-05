@@ -4,9 +4,11 @@ import { titleFrom } from "@md-to-pdf/markdown";
 import { AppBar } from "@/components/AppBar";
 import { EditorPane } from "@/components/EditorPane";
 import { Pane } from "@/components/Pane";
+import { PreviewView } from "@/components/PreviewView";
 import { SegmentedControl, type View } from "@/components/SegmentedControl";
 import { copy } from "@/copy";
 import { useDocument } from "@/hooks/useDocument";
+import { useRendered } from "@/hooks/useRendered";
 
 const outputTabs: { value: View; label: string }[] = [
   { value: "preview", label: copy.tabs.preview },
@@ -19,6 +21,7 @@ export default function App() {
   const [view, setView] = useState<View>("preview");
   const outputView = view === "write" ? "preview" : view;
   const { doc, setDoc } = useDocument();
+  const html = useRendered(doc);
 
   useEffect(() => {
     document.title = copy.title(titleFrom(doc));
@@ -36,7 +39,7 @@ export default function App() {
           header={<SegmentedControl value={outputView} onChange={setView} options={outputTabs} />}
           className={view === "write" ? "hidden lg:flex" : ""}
         >
-          <div className="p-10 text-muted-foreground">{copy.previewEmpty}</div>
+          {outputView === "preview" && <PreviewView html={html} />}
         </Pane>
       </main>
       <Toaster position="bottom-center" />
