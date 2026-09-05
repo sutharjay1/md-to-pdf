@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@md-to-pdf/ui/components/tabs";
 
-export type View = "write" | "preview" | "html" | "pdf";
+export type View = "write" | "preview" | "html";
 
 type Option = { value: View; label: string };
 

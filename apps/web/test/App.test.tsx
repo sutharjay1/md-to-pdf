@@ -11,24 +11,21 @@ vi.mock("@/lib/pdf", () => ({
   },
 }));
 
-vi.mock("@/components/PdfViewer", () => ({
-  default: () => <div data-testid="pdf-viewer-stub" />,
-}));
-
 beforeEach(() => {
   requestPdf.mockReset();
   URL.createObjectURL = vi.fn(() => "blob:1");
   URL.revokeObjectURL = vi.fn();
 });
 
-function clickTab(name: string) {
-  const [tab] = screen.getAllByRole("tab", { name });
-  fireEvent.mouseDown(tab, { button: 0 });
-}
-
 test("renders the wordmark", () => {
   render(<App />);
   expect(screen.getByText("MD to PDF")).toBeInTheDocument();
+});
+
+test("no PDF tab is shown", () => {
+  render(<App />);
+  expect(screen.getAllByRole("tab", { name: copy.tabs.html }).length).toBeGreaterThan(0);
+  expect(screen.queryByRole("tab", { name: "PDF" })).not.toBeInTheDocument();
 });
 
 it("guards Cmd/Ctrl+S while a PDF render is already in flight", async () => {
@@ -37,7 +34,7 @@ it("guards Cmd/Ctrl+S while a PDF render is already in flight", async () => {
 
   render(<App />);
 
-  clickTab(copy.tabs.pdf);
+  fireEvent.keyDown(window, { key: "s", metaKey: true });
   await waitFor(() => expect(requestPdf).toHaveBeenCalledTimes(1));
 
   fireEvent.keyDown(window, { key: "s", metaKey: true });
@@ -47,7 +44,14 @@ it("guards Cmd/Ctrl+S while a PDF render is already in flight", async () => {
     resolveRender(new Blob(["%PDF"]));
     await Promise.resolve();
   });
+});
 
-  clickTab(copy.tabs.preview);
-  await waitFor(() => expect(screen.getByText(/Write on the left, get a PDF on the right/)).toBeInTheDocument());
+it("shows a toast when the PDF request fails", async () => {
+  requestPdf.mockRejectedValue(new Error("boom"));
+
+  render(<App />);
+
+  fireEvent.keyDown(window, { key: "s", metaKey: true });
+
+  await waitFor(() => expect(screen.getByText(copy.pdfError)).toBeInTheDocument());
 });

@@ -5,7 +5,6 @@ import { SegmentedControl } from "@/components/SegmentedControl";
 const options = [
   { value: "preview", label: "Preview" },
   { value: "html", label: "HTML" },
-  { value: "pdf", label: "PDF" },
 ] as const;
 
 test("renders a tablist and reports changes", async () => {
@@ -13,6 +12,6 @@ test("renders a tablist and reports changes", async () => {
   render(<SegmentedControl value="preview" onChange={onChange} options={[...options]} />);
   expect(screen.getByRole("tablist")).toBeInTheDocument();
   expect(screen.getByRole("tab", { name: "Preview" })).toHaveAttribute("aria-selected", "true");
-  await userEvent.click(screen.getByRole("tab", { name: "PDF" }));
-  expect(onChange).toHaveBeenCalledWith("pdf");
+  await userEvent.click(screen.getByRole("tab", { name: "HTML" }));
+  expect(onChange).toHaveBeenCalledWith("html");
 });

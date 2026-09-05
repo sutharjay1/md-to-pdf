@@ -11,13 +11,19 @@ beforeAll(() => {
   URL.revokeObjectURL = vi.fn();
 });
 
-it("goes idle → rendering → fresh, then stale when html changes", async () => {
-  const { result, rerender } = renderHook(({ html }) => usePdf(html, "A4"), { initialProps: { html: "<p>a</p>" } });
+it("goes idle → rendering → fresh", async () => {
+  const { result } = renderHook(({ html }) => usePdf(html, "A4"), { initialProps: { html: "<p>a</p>" } });
   expect(result.current.status).toBe("idle");
   act(() => void result.current.render());
   expect(result.current.status).toBe("rendering");
   await waitFor(() => expect(result.current.status).toBe("fresh"));
-  expect(result.current.url).toBe("blob:1");
-  rerender({ html: "<p>b</p>" });
-  expect(result.current.status).toBe("stale");
+});
+
+it("goes to error status when the request fails", async () => {
+  const { requestPdf } = await import("@/lib/pdf");
+  vi.mocked(requestPdf).mockRejectedValueOnce(new Error("boom"));
+  const { result } = renderHook(() => usePdf("<p>a</p>", "A4"));
+  act(() => void result.current.render());
+  await waitFor(() => expect(result.current.status).toBe("error"));
+  expect(result.current.error).toBe("failed");
 });

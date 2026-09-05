@@ -1,14 +1,11 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Toaster } from "@md-to-pdf/ui/components/sonner";
-import { Button } from "@md-to-pdf/ui/components/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@md-to-pdf/ui/components/select";
 import { TooltipProvider } from "@md-to-pdf/ui/components/tooltip";
 import { filenameFrom, titleFrom } from "@md-to-pdf/markdown";
 import { AppBar } from "@/components/AppBar";
 import { CopyButton } from "@/components/CopyButton";
 import { EditorPane } from "@/components/EditorPane";
 import { Pane } from "@/components/Pane";
-import { PdfView } from "@/components/PdfView";
 import { PreviewView } from "@/components/PreviewView";
 import { SegmentedControl, type View } from "@/components/SegmentedControl";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -24,7 +21,6 @@ const HtmlView = lazy(() => import("@/components/HtmlView"));
 const outputTabs: { value: View; label: string }[] = [
   { value: "preview", label: copy.tabs.preview },
   { value: "html", label: copy.tabs.html },
-  { value: "pdf", label: copy.tabs.pdf },
 ];
 const mobileTabs: { value: View; label: string }[] = [{ value: "write", label: copy.tabs.write }, ...outputTabs];
 
@@ -40,12 +36,6 @@ export default function App() {
   useEffect(() => {
     document.title = copy.title(titleFrom(doc));
   }, [doc]);
-
-  useEffect(() => {
-    if (outputView === "pdf" && (pdf.status === "idle" || pdf.status === "stale")) void pdf.render();
-    // depend only on outputView so edits while on the tab mark stale instead of re-rendering
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [outputView]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -68,6 +58,8 @@ export default function App() {
     <TooltipProvider delayDuration={400}>
       <div className="h-dvh flex flex-col">
         <AppBar
+          page={page}
+          onPageChange={onPageChange}
           onDownload={() => pdf.download(filenameFrom(titleFrom(doc)))}
           downloadDisabled={pdf.status === "rendering"}
           downloadLabel={pdf.status === "rendering" ? copy.rendering : copy.download}
@@ -86,40 +78,6 @@ export default function App() {
                   <SegmentedControl value={outputView} onChange={setView} options={outputTabs} />
                 </div>
                 {outputView === "html" && <CopyButton text={html} />}
-                {outputView === "pdf" && (
-                  <div className="flex items-center gap-3">
-                    <Select value={page} onValueChange={(v) => onPageChange(v as Page)}>
-                      <SelectTrigger
-                        aria-label={copy.pageSize}
-                        size="sm"
-                        className="w-auto gap-1 border-0 bg-transparent px-2 text-[13px] shadow-none data-[size=sm]:h-7"
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent position="popper" align="end" sideOffset={4} className="p-1">
-                        <SelectItem value="A4" className="px-2 py-1 text-[13px]">
-                          {copy.pageSizes.A4}
-                        </SelectItem>
-                        <SelectItem value="Letter" className="px-2 py-1 text-[13px]">
-                          {copy.pageSizes.Letter}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {pdf.status === "rendering" && (
-                      <span className="text-muted-foreground transition-opacity duration-(--dur-base)">{copy.rendering}</span>
-                    )}
-                    {pdf.status === "stale" && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 px-2 text-[13px] relative before:absolute before:-inset-1.5 before:content-[''] active:scale-[0.97] transition-transform duration-(--dur-fast)"
-                        onClick={() => pdf.render()}
-                      >
-                        {copy.update}
-                      </Button>
-                    )}
-                  </div>
-                )}
               </>
             }
             className={view === "write" ? "hidden lg:flex" : ""}
@@ -130,15 +88,6 @@ export default function App() {
                 <Suspense fallback={null}>
                   <HtmlView html={html} />
                 </Suspense>
-              )}
-              {outputView === "pdf" && (
-                <PdfView
-                  status={pdf.status}
-                  url={pdf.url}
-                  error={pdf.error}
-                  fileName={filenameFrom(titleFrom(doc))}
-                  onRetry={() => pdf.render()}
-                />
               )}
             </div>
           </Pane>

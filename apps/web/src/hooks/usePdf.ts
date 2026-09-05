@@ -1,23 +1,23 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import { toast } from "sonner";
+import { copy } from "@/copy";
 import { PdfError, requestPdf, type PdfErrorCode } from "@/lib/pdf";
 import type { Page } from "@/lib/storage";
 
-export type PdfStatus = "idle" | "rendering" | "fresh" | "stale" | "error";
+export type PdfStatus = "idle" | "rendering" | "fresh" | "error";
+
+const errorMessages: Record<PdfErrorCode, string> = {
+  "rate-limited": copy.pdfRateLimited,
+  "too-large": copy.pdfTooLarge,
+  "not-configured": copy.pdfNotConfigured,
+  failed: copy.pdfError,
+};
 
 export function usePdf(html: string, page: Page) {
   const [status, setStatus] = useState<PdfStatus>("idle");
-  const [url, setUrl] = useState<string | null>(null);
   const [error, setError] = useState<PdfErrorCode | null>(null);
   const blobRef = useRef<Blob | null>(null);
   const renderedFor = useRef<{ html: string; page: Page } | null>(null);
-
-  useEffect(() => {
-    if (!renderedFor.current) return;
-    const changed = renderedFor.current.html !== html || renderedFor.current.page !== page;
-    if (changed && status === "fresh") setStatus("stale");
-  }, [html, page, status]);
-
-  useEffect(() => () => { if (url) URL.revokeObjectURL(url); }, [url]);
 
   const render = useCallback(async (): Promise<Blob | null> => {
     setStatus("rendering");
@@ -26,18 +26,20 @@ export function usePdf(html: string, page: Page) {
       const blob = await requestPdf(html, page);
       blobRef.current = blob;
       renderedFor.current = { html, page };
-      setUrl(URL.createObjectURL(blob));
       setStatus("fresh");
       return blob;
     } catch (e) {
-      setError(e instanceof PdfError ? e.code : "failed");
+      const code = e instanceof PdfError ? e.code : "failed";
+      setError(code);
       setStatus("error");
+      toast.error(errorMessages[code]);
       return null;
     }
   }, [html, page]);
 
   const download = useCallback(async (filename: string) => {
-    const blob = status === "fresh" && blobRef.current ? blobRef.current : await render();
+    const fresh = renderedFor.current?.html === html && renderedFor.current?.page === page ? blobRef.current : null;
+    const blob = fresh ?? (await render());
     if (!blob) return;
     const a = document.createElement("a");
     const href = URL.createObjectURL(blob);
@@ -45,7 +47,7 @@ export function usePdf(html: string, page: Page) {
     a.download = filename;
     a.click();
     setTimeout(() => URL.revokeObjectURL(href), 0);
-  }, [status, render]);
+  }, [html, page, render]);
 
-  return { status, url, error, render, download };
+  return { status, error, render, download };
 }
