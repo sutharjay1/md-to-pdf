@@ -357,10 +357,12 @@ run in the renderer.
 ### 10.3 Print stylesheet
 
 `prose.css` carries `@media print` rules: `@page` margins are left to
-`pdfOptions`; headings `break-after: avoid`; `pre`, `table`, `figure`
-`break-inside: avoid`; code soft-wraps; links keep their colour but print no
-URL suffix; the video placeholder swap (§9.1). Page size comes from
-`pdfOptions.format`, so the same CSS serves both sizes.
+`pdfOptions`; headings `break-after: avoid`; `pre`, `figure` and table rows
+`break-inside: avoid` with the header row repeated on each page; code
+soft-wraps; links keep their colour but print no URL suffix; the video
+placeholder swap (§9.1), whose URL line uses the document font because the
+renderer paints Geist Mono invisibly inside that card. Page size comes from
+`pdfOptions.format` (sent lowercase), so the same CSS serves both sizes.
 
 ### 10.4 Alternatives considered
 
