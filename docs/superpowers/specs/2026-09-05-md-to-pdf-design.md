@@ -42,6 +42,7 @@ setup. Nothing else. No accounts, no cloud storage, no sharing, no analytics.
 | 4 | Repository | `github.com/sutharjay1/md-to-pdf`, private | Jay asked for the repo; private until he flips it. |
 | 5 | PDF viewer | Extend UI `PDFViewer` (EmbedPDF/PDFium, MIT), lazy-loaded, WASM self-hosted, upload/rotate/download hidden | Jay asked for it on 2026-09-06 over the native iframe. Guardrails keep the initial bundle and the no-CDN rule intact. |
 | 6 | Security headers | Workers static-assets `_headers` file, not Worker code | With `run_worker_first` limited to `/api/*` the Worker never sees HTML requests. |
+| 7 | PDF preview | Removed; Download only | Jay, 2026-09-06: cost and simplicity; the Worker route is unchanged, the Extend viewer and PDFium chunk are gone |
 
 ## 3. References
 
@@ -117,9 +118,9 @@ Desktop (≥ 1024px):
 
 ```
 ┌────────────────────────────────────────────────────────────────────┐
-│ MD to PDF                                    ◐   [ Download PDF ]  │  app bar, 44px
+│ MD to PDF                          ◐   A4 ▾   [ Download PDF ]     │  app bar, 44px
 ├───────────────────────────────┬────────────────────────────────────┤
-│ Markdown            1,204 words│ Preview · HTML · PDF        Copy   │  pane headers, 36px
+│ Markdown            1,204 words│ Preview · HTML              Copy   │  pane headers, 36px
 ├───────────────────────────────┼────────────────────────────────────┤
 │                               │                                    │
 │  # Title                      │   Title                            │
@@ -131,20 +132,20 @@ Desktop (≥ 1024px):
 
 - Two panes, 50/50, separated by a 1px `--border` line. Not resizable in v1.
 - App bar: wordmark left (plain text, no logo, no SVG). Right: theme toggle
-  (icon button), then **Download PDF** — the only filled button on the page.
+  (icon button), the page-size select, then **Download PDF** — the only
+  filled button on the page. The page-size select stays visible at every
+  width, immediately left of the download button.
 - Left pane header: label "Markdown", word count right-aligned in
   `--muted-foreground`, `tabular-nums`. Also an **Open** ghost button that
   accepts `.md` / `.markdown` / `.txt` files.
-- Right pane header: segmented control **Preview · HTML · PDF** on the left,
+- Right pane header: segmented control **Preview · HTML** on the left,
   a contextual action on the right (see §8).
-- Content sits directly on `--background`. No cards. The PDF viewer is the one
-  exception: it sits in a recessed `--muted` well because the PDF viewer has
-  its own chrome.
+- Content sits directly on `--background`. No cards.
 
 Tablet and phone (< 1024px): one pane. The app bar's right side becomes an
-icon-only download button. A four-way segmented control **Write · Preview ·
-HTML · PDF** replaces both pane headers. Inputs stay at 16px so iOS does not
-zoom.
+icon-only download button, with the page-size select still next to it. A
+three-way segmented control **Write · Preview · HTML** replaces both pane
+headers. Inputs stay at 16px so iOS does not zoom.
 
 ---
 
@@ -266,27 +267,15 @@ new tab.
 Geist Mono 13px, soft-wrapped, read-only, selectable. Header action: **Copy**.
 This is exactly the HTML the PDF is built from, so what you see is what ships.
 
-**PDF** — the real PDF in Extend UI's `PDFViewer` (decision 5): lazy-loaded on
-first entry, PDFium WASM served from our own assets, only zoom and page
-controls shown, loading state a static `Rendering…` label. Header shows the
-page-size select, and one of:
-
-| State | Header right | Pane |
-|---|---|---|
-| never rendered, tab opened | `Rendering…` | empty well |
-| rendering, previous PDF exists | `Rendering…` | previous PDF at 60% opacity |
-| fresh | page size only | PDF |
-| stale (source edited since render) | `Update` | previous PDF at full opacity |
-| error | `Try again` | message centered in the well |
-
-Rules: opening the PDF tab with stale or missing output renders automatically.
-Editing while the PDF tab is open only marks it stale; the user clicks
-**Update**. This keeps quota use proportional to intent.
-
-**Download PDF** (app bar) — if the last render is fresh, saves that blob.
-Otherwise renders first, then saves. The button reads `Rendering…` and is
-disabled while a render is in flight. `Cmd/Ctrl+S` triggers the same action
-and suppresses the browser's save dialog.
+**Download PDF** (app bar, decision 7) — there is no PDF preview; the button
+is the only way to get a PDF. If the last render is fresh for the current
+HTML and page size, it saves that blob straight away. Otherwise it renders
+first, then saves. The button reads `Rendering…` and is disabled while a
+render is in flight. `Cmd/Ctrl+S` triggers the same action and suppresses the
+browser's save dialog. A render failure never blocks the UI: it surfaces as a
+`sonner` toast (`Couldn't render the PDF.`, the rate-limit message, the
+too-large message, or the not-configured message, per §6) and the app is
+immediately ready to try again.
 
 ---
 
@@ -434,7 +423,7 @@ every transition entirely: states change instantly, nothing parks or jumps.
 | Item | Budget |
 |---|---|
 | Initial JS (gzip) | ≤ 150 KB. React 19 ≈ 55, tailwind-merge ≈ 9, sonner ≈ 8, marked ≈ 7, Radix select + tooltip + floating-ui ≈ 15, morphdom ≈ 4, app ≈ 40 |
-| Lazy JS | highlight.js core + grammars ≈ 30 KB, loaded on first fenced block; Extend viewer + worker + PDFium WASM ≈ 4.6 MB, loaded on first PDF-tab entry |
+| Lazy JS | highlight.js core + grammars ≈ 30 KB, loaded on first fenced block |
 | Fonts | Inter var + Geist Mono var, subset to Latin, ≈ 120 KB total, `font-display: swap` |
 | Preview update | < 16 ms for a 5,000-word document |
 | Cold load to interactive (Cloudflare edge, 4G) | < 1 s |
@@ -493,13 +482,14 @@ is not adopted.
 - `pnpm build` → turbo → Vite → `apps/web/dist/`; `pnpm deploy` → turbo runs
   `web#build` then `wrangler deploy` in `apps/worker`.
 - The budget check runs inside `web#build` and fails the build over 150 KB.
-- Headers ship from `apps/web/public/_headers` (decision 6):
-  `Content-Security-Policy` with `script-src 'self' 'wasm-unsafe-eval'`,
-  `style-src 'self' 'unsafe-inline'`, fonts from `self`, images from `https:`
-  `data:` `blob:`, frames from `youtube-nocookie.com` and `player.vimeo.com`,
-  `worker-src 'self' blob:`, `connect-src 'self' blob:`, `frame-ancestors
-  'none'`, `form-action 'none'`; plus `X-Content-Type-Options: nosniff` and
-  `Referrer-Policy: strict-origin-when-cross-origin`.
+- Headers ship from `apps/web/public/_headers` (decisions 6 and 7):
+  `Content-Security-Policy` with `script-src 'self'`, `style-src 'self'
+  'unsafe-inline'`, fonts from `self`, images from `https:` `data:`, frames
+  from `youtube-nocookie.com` and `player.vimeo.com`, `connect-src 'self'`,
+  `frame-ancestors 'none'`, `form-action 'none'`; plus `X-Content-Type-Options:
+  nosniff` and `Referrer-Policy: strict-origin-when-cross-origin`. No
+  `worker-src` and no `blob:` sources: those existed only for the PDF
+  preview's viewer worker and object URLs.
 - `/api/pdf` accepts same-origin browser requests only (Fetch Metadata /
   `Origin` check); add a Cloudflare rate-limiting rule on `/api/pdf` before a
   public launch.

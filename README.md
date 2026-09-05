@@ -20,16 +20,17 @@ To work on the UI alone, without the PDF route:
 pnpm -F web dev
 ```
 
-To also use the PDF tab while developing, run the Worker in a second
-terminal alongside Vite:
+To also use the Download PDF button while developing, run the Worker in a
+second terminal alongside Vite:
 
 ```bash
 pnpm -F worker dev
 ```
 
 Keep using `http://localhost:5173`; Vite proxies `/api` requests to the
-Worker on port 8787. Without `apps/worker/.dev.vars`, the PDF tab shows a
-message saying rendering is not set up yet, instead of failing silently.
+Worker on port 8787. Without `apps/worker/.dev.vars`, clicking Download PDF
+shows a toast saying rendering is not set up yet, instead of failing
+silently.
 
 To run the full built app from the Worker alone, including the `/api/pdf`
 route:
@@ -41,7 +42,7 @@ pnpm build && pnpm -F worker dev
 ## Workspace layout
 
 - `apps/web`, the Vite plus React front end: editor, preview, HTML view, and
-  PDF view.
+  a Download PDF button.
 - `apps/worker`, the Cloudflare Worker that serves the built assets and
   proxies PDF requests to Cloudflare's Browser Rendering API.
 - `packages/markdown`, the markdown pipeline: `marked` with GFM, syntax
