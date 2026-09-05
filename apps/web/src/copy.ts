@@ -16,6 +16,7 @@ export const copy = {
   update: "Update",
   tryAgain: "Try again",
   pageSizes: { A4: "A4", Letter: "Letter" },
+  pageSize: "Page size",
   pdfError: "Couldn't render the PDF.",
   pdfRateLimited: "Too many requests. Wait a moment and try again.",
   pdfTooLarge: "The document is too large to render. Trim it to under 2 MB of HTML.",
