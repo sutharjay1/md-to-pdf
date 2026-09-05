@@ -56,7 +56,7 @@ export default function App() {
 
   return (
     <TooltipProvider delayDuration={400}>
-      <div className="h-dvh flex flex-col">
+      <div className="h-dvh overflow-hidden flex flex-col">
         <AppBar
           page={page}
           onPageChange={onPageChange}
@@ -69,7 +69,7 @@ export default function App() {
         <div className="lg:hidden h-9 flex items-center px-4 border-b">
           <SegmentedControl value={view} onChange={setView} options={mobileTabs} />
         </div>
-        <main className="min-h-0 flex-1 grid lg:grid-cols-2">
+        <main className="min-h-0 flex-1 grid grid-rows-[minmax(0,1fr)] lg:grid-cols-2">
           <EditorPane doc={doc} onChange={setDoc} className={`lg:border-r ${view === "write" ? "" : "hidden lg:flex"}`} />
           <Pane
             header={
