@@ -624,7 +624,7 @@ function PDFViewerPageNumberControl({
     [numPages, onPageChange]
   )
   return (
-    <div className="flex items-center text-sm whitespace-nowrap text-primary">
+    <div className="flex items-center text-sm whitespace-nowrap text-foreground">
       <span>Page</span>
       {isEditing ? (
         <Input
@@ -840,7 +840,7 @@ function PDFViewerSearchControl({
               <div className="truncate">
                 {state.total ? (
                   <>
-                    <span className="text-primary">
+                    <span className="text-foreground font-medium">
                       {state.activeResultIndex + 1}
                     </span>
                     {` / ${state.total}`}
@@ -1023,9 +1023,13 @@ function PDFViewerToolbar({
                   {Math.round(currentZoomLevel * 100)}%
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="p-1">
                 {ZOOM_OPTIONS.map((option) => (
-                  <SelectItem key={option} value={String(option)}>
+                  <SelectItem
+                    key={option}
+                    value={String(option)}
+                    className="px-2 py-1 text-[13px]"
+                  >
                     {Math.round(option * 100)}%
                   </SelectItem>
                 ))}

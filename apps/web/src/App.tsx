@@ -96,9 +96,13 @@ export default function App() {
                       >
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent position="popper" align="end" sideOffset={4}>
-                        <SelectItem value="A4">{copy.pageSizes.A4}</SelectItem>
-                        <SelectItem value="Letter">{copy.pageSizes.Letter}</SelectItem>
+                      <SelectContent position="popper" align="end" sideOffset={4} className="p-1">
+                        <SelectItem value="A4" className="px-2 py-1 text-[13px]">
+                          {copy.pageSizes.A4}
+                        </SelectItem>
+                        <SelectItem value="Letter" className="px-2 py-1 text-[13px]">
+                          {copy.pageSizes.Letter}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     {pdf.status === "rendering" && (
