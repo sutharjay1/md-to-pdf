@@ -34,7 +34,7 @@ export function SegmentedControl({ value, onChange, options }: Props) {
           <TabsTrigger
             key={o.value}
             value={o.value}
-            className="relative z-10 h-7 px-2.5 text-[13px] text-muted-foreground data-[state=active]:text-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none transition-colors duration-(--dur-fast)"
+            className="relative z-10 h-7 px-2.5 text-[13px] text-muted-foreground data-[state=active]:text-primary data-[state=active]:bg-transparent group-data-[variant=default]/tabs-list:data-[state=active]:shadow-none transition-colors duration-(--dur-fast)"
           >
             {o.label}
           </TabsTrigger>
