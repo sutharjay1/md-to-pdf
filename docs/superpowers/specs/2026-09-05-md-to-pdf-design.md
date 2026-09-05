@@ -40,6 +40,8 @@ setup. Nothing else. No accounts, no cloud storage, no sharing, no analytics.
 | 2 | PDF generation | Cloudflare Browser Rendering `/pdf` endpoint, called from one Worker route | Real PDF bytes, one-click download, Chrome fidelity. Alternatives in §10.4. |
 | 3 | Linear team | Jay | Jay's choice. |
 | 4 | Repository | `github.com/sutharjay1/md-to-pdf`, private | Jay asked for the repo; private until he flips it. |
+| 5 | PDF viewer | Extend UI `PDFViewer` (EmbedPDF/PDFium, MIT), lazy-loaded, WASM self-hosted, upload/rotate/download hidden | Jay asked for it on 2026-09-06 over the native iframe. Guardrails keep the initial bundle and the no-CDN rule intact. |
+| 6 | Security headers | Workers static-assets `_headers` file, not Worker code | With `run_worker_first` limited to `/api/*` the Worker never sees HTML requests. |
 
 ## 3. References
 
@@ -76,7 +78,7 @@ browser (static SPA, Vite build, served as Workers static assets)
   ├─ render        markdown → HTML fragment (marked + GFM + video + highlight.js)
   ├─ Preview tab   fragment patched into the DOM with morphdom
   ├─ HTML tab      fragment shown as highlighted source, Copy
-  └─ PDF tab       POST /api/pdf {html, page} → PDF blob → <iframe>, Download
+  └─ PDF tab       POST /api/pdf {html, page} → PDF blob → Extend UI viewer (lazy), Download
 
 worker (one route: POST /api/pdf)
   ├─ validates body (size, page value)
@@ -135,7 +137,7 @@ Desktop (≥ 1024px):
   accepts `.md` / `.markdown` / `.txt` files.
 - Right pane header: segmented control **Preview · HTML · PDF** on the left,
   a contextual action on the right (see §8).
-- Content sits directly on `--background`. No cards. The PDF iframe is the one
+- Content sits directly on `--background`. No cards. The PDF viewer is the one
   exception: it sits in a recessed `--muted` well because the PDF viewer has
   its own chrome.
 
@@ -264,8 +266,10 @@ new tab.
 Geist Mono 13px, soft-wrapped, read-only, selectable. Header action: **Copy**.
 This is exactly the HTML the PDF is built from, so what you see is what ships.
 
-**PDF** — the real PDF in an `<iframe>`, using the browser's native viewer.
-Header shows the page-size select, and one of:
+**PDF** — the real PDF in Extend UI's `PDFViewer` (decision 5): lazy-loaded on
+first entry, PDFium WASM served from our own assets, only zoom and page
+controls shown, loading state a static `Rendering…` label. Header shows the
+page-size select, and one of:
 
 | State | Header right | Pane |
 |---|---|---|
@@ -419,7 +423,7 @@ every transition entirely: states change instantly, nothing parks or jumps.
 - Every icon button has an `aria-label` and a tooltip.
 - Toasts use `aria-live="polite"`.
 - Colour contrast meets AA on every pair; the orange pair is measured, not assumed.
-- The PDF iframe has `title="PDF preview"`.
+- The PDF preview container is a labelled `region` (`PDF preview`).
 
 ---
 
@@ -428,7 +432,7 @@ every transition entirely: states change instantly, nothing parks or jumps.
 | Item | Budget |
 |---|---|
 | Initial JS (gzip) | ≤ 150 KB. React 19 ≈ 55, tailwind-merge ≈ 9, sonner ≈ 8, marked ≈ 7, Radix select + tooltip + floating-ui ≈ 15, morphdom ≈ 4, app ≈ 40 |
-| Lazy JS | highlight.js core + grammars ≈ 30 KB, loaded on first fenced block |
+| Lazy JS | highlight.js core + grammars ≈ 30 KB, loaded on first fenced block; Extend viewer + worker + PDFium WASM ≈ 4.6 MB, loaded on first PDF-tab entry |
 | Fonts | Inter var + Geist Mono var, subset to Latin, ≈ 120 KB total, `font-display: swap` |
 | Preview update | < 16 ms for a 5,000-word document |
 | Cold load to interactive (Cloudflare edge, 4G) | < 1 s |
@@ -487,7 +491,13 @@ is not adopted.
 - `pnpm build` → turbo → Vite → `apps/web/dist/`; `pnpm deploy` → turbo runs
   `web#build` then `wrangler deploy` in `apps/worker`.
 - The budget check runs inside `web#build` and fails the build over 150 KB.
-- Headers set by the Worker on HTML responses: `Content-Security-Policy`
-  allowing `self`, fonts from `self`, images from `https:`, frames from
-  `youtube-nocookie.com` and `player.vimeo.com`, and `blob:` for the PDF
-  iframe; no `unsafe-inline` for scripts.
+- Headers ship from `apps/web/public/_headers` (decision 6):
+  `Content-Security-Policy` with `script-src 'self' 'wasm-unsafe-eval'`,
+  `style-src 'self' 'unsafe-inline'`, fonts from `self`, images from `https:`
+  `data:` `blob:`, frames from `youtube-nocookie.com` and `player.vimeo.com`,
+  `worker-src 'self' blob:`, `connect-src 'self' blob:`, `frame-ancestors
+  'none'`, `form-action 'none'`; plus `X-Content-Type-Options: nosniff` and
+  `Referrer-Policy: strict-origin-when-cross-origin`.
+- `/api/pdf` accepts same-origin browser requests only (Fetch Metadata /
+  `Origin` check); add a Cloudflare rate-limiting rule on `/api/pdf` before a
+  public launch.
