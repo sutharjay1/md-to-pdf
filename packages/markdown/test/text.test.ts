@@ -36,3 +36,9 @@ describe("wordCount", () => {
     expect(wordCount("   \n")).toBe(0);
   });
 });
+
+it("prefers the front matter title and ignores front matter in the word count", () => {
+  const md = "---\ntitle: From Meta\nauthor: Jay\n---\n\n# Heading\n\none two";
+  expect(titleFrom(md)).toBe("From Meta");
+  expect(wordCount(md)).toBe(3);
+});

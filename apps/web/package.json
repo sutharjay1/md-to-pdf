@@ -13,6 +13,7 @@
     "@md-to-pdf/markdown": "workspace:*",
     "@md-to-pdf/ui": "workspace:*",
     "lucide-react": "^1.41",
+    "mermaid": "^11.17.2",
     "morphdom": "^2.7",
     "react": "^19",
     "react-dom": "^19",

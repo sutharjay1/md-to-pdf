@@ -14,6 +14,13 @@
 .doc p, .doc ul, .doc ol, .doc blockquote, .doc pre, .doc table, .doc figure { margin: 0 0 1em; }
 .doc p { text-wrap: pretty; }
 .doc ul, .doc ol { padding-left: 1.5em; }
+.doc ul { list-style: disc; }
+.doc ul ul { list-style: circle; }
+.doc ul ul ul { list-style: square; }
+.doc ol { list-style: decimal; }
+.doc ol ol { list-style: lower-alpha; }
+.doc ul ul, .doc ol ol, .doc ul ol, .doc ol ul { margin: 0.25em 0 0; }
+.doc li:has(> input[type="checkbox"]) { list-style: none; margin-left: -1.5em; }
 .doc li + li { margin-top: 0.25em; }
 .doc li > input[type="checkbox"] { margin-right: 0.5em; vertical-align: middle; }
 .doc a { color: inherit; text-decoration: underline; text-underline-offset: 0.15em; text-decoration-color: var(--muted-foreground, #737373); }
@@ -27,10 +34,38 @@
 .doc table { border-collapse: collapse; width: 100%; font-size: 0.95em; }
 .doc th, .doc td { border: 1px solid var(--border, #e5e5e5); padding: 0.45em 0.7em; text-align: left; vertical-align: top; }
 .doc th { font-weight: 600; background: var(--muted, #f5f5f5); }
+.doc th[align="center"], .doc td[align="center"], .doc [style*="text-align: center"] { text-align: center; }
+.doc th[align="right"], .doc td[align="right"], .doc [style*="text-align: right"] { text-align: right; }
+.doc kbd { font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.8em; padding: 0.1em 0.4em; border: 1px solid var(--border, #e5e5e5); border-bottom-width: 2px; border-radius: 4px; background: var(--muted, #f5f5f5); white-space: nowrap; }
+.doc mark { background: #fde68a; color: #171717; padding: 0 0.15em; border-radius: 2px; }
+.doc details { border: 1px solid var(--border, #e5e5e5); border-radius: 6px; padding: 0.5em 1em; margin: 0 0 1em; }
+.doc summary { cursor: pointer; font-weight: 500; }
+.doc table.frontmatter { font-size: 0.85em; width: auto; min-width: 50%; color: var(--muted-foreground, #737373); }
+.doc table.frontmatter th { font-weight: 500; white-space: nowrap; }
 .doc figure.video iframe, .doc figure.video video { width: 100%; aspect-ratio: 16 / 9; height: auto; border: 0; background: #000; }
 .doc figcaption { font-size: 0.85em; color: var(--muted-foreground, #737373); margin-top: 0.4em; }
 .doc .video-placeholder { display: none; }
 .doc .footnotes { font-size: 0.85em; color: var(--muted-foreground, #737373); margin-top: 2em; }
+.doc figure.diagram { margin: 0 0 1em; text-align: center; overflow-x: auto; }
+.doc figure.diagram svg { max-width: 100%; height: auto; }
+.doc pre.mermaid-error::before { content: attr(data-error); display: block; font-family: inherit; color: #cf222e; margin-bottom: 0.5em; }
+.doc math { font-size: 1.05em; }
+.doc math[display="block"] { display: block; margin: 1em 0; }
+.doc .markdown-alert { --alert: var(--muted-foreground, #737373); border-left: 3px solid var(--alert); border-radius: 0 6px 6px 0; background: var(--muted, #f5f5f5); padding: 0.6em 1em; margin: 0 0 1em; }
+.doc .markdown-alert > :last-child { margin-bottom: 0; }
+.doc .markdown-alert-title { display: flex; align-items: center; gap: 0.5em; font-weight: 600; color: var(--alert); margin-bottom: 0.3em; }
+.doc .markdown-alert-title svg { width: 1em; height: 1em; fill: currentColor; flex: none; }
+.doc .markdown-alert-note { --alert: #0969da; }
+.doc .markdown-alert-tip { --alert: #1a7f37; }
+.doc .markdown-alert-important { --alert: #8250df; }
+.doc .markdown-alert-warning { --alert: #9a6700; }
+.doc .markdown-alert-caution { --alert: #cf222e; }
+.dark .doc .markdown-alert-note { --alert: #4493f8; }
+.dark .doc .markdown-alert-tip { --alert: #3fb950; }
+.dark .doc .markdown-alert-important { --alert: #ab7df8; }
+.dark .doc .markdown-alert-warning { --alert: #d29922; }
+.dark .doc .markdown-alert-caution { --alert: #f85149; }
+.dark .doc mark { background: #854d0e; color: #fafafa; }
 
 /* highlight.js github theme, trimmed */
 .hljs-comment, .hljs-quote { color: #6a737d; }
@@ -55,7 +90,11 @@
 @media print {
   .doc { color: #171717; font-size: 11pt; line-height: 1.55; }
   .doc h1, .doc h2, .doc h3, .doc h4 { break-after: avoid; }
-  .doc pre, .doc figure, .doc blockquote, .doc img, .doc tr { break-inside: avoid; }
+  .doc pre, .doc figure, .doc blockquote, .doc img, .doc tr, .doc .markdown-alert, .doc details { break-inside: avoid; }
+  .doc details { border-color: #e5e5e5; }
+  .doc details:not([open]) > :not(summary) { display: block; }
+  .doc .markdown-alert { background: #f5f5f5; }
+  .doc kbd { border-color: #e5e5e5; background: #f5f5f5; }
   .doc thead { display: table-header-group; }
   .doc pre { white-space: pre-wrap; word-break: break-word; background: #f5f5f5; }
   .doc a { color: #171717; text-decoration-color: #737373; }
