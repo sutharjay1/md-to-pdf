@@ -59,6 +59,7 @@ import { useZoom, ZoomPluginPackage } from "@embedpdf/plugin-zoom/react"
 import { flushSync } from "react-dom"
 
 import { loadSharedPdfEngine } from "@/lib/pdf-thumbnail-utils"
+import { copy } from "@/copy"
 import { cn } from "@md-to-pdf/ui/lib/utils"
 import { Button } from "@md-to-pdf/ui/components/button"
 import {
@@ -94,7 +95,7 @@ import {
   useElementWidth,
   useInlineThumbnailSidebar,
 } from "@/components/extend/document-viewer-sidebar"
-import { Search, Ellipsis, Download, Upload, ChevronLeft, ArrowRight, PanelLeft, RotateCw, CircleMinus, CirclePlusIcon, LoaderCircle } from "lucide-react"
+import { Search, Ellipsis, Download, Upload, ChevronLeft, ArrowRight, PanelLeft, RotateCw, CircleMinus, CirclePlusIcon } from "lucide-react"
 
 export type PDFViewerPageOverlayProps = {
   pageNumber: number
@@ -415,7 +416,7 @@ function PDFViewerLoadingSkeleton({
         />
       ) : null}
       <div className="grid min-w-0 flex-1 place-items-center">
-        <InlineSpinner className="size-4" />
+        <span className="text-muted-foreground text-[13px]">{copy.rendering}</span>
       </div>
     </div>
   )
@@ -577,11 +578,7 @@ function PDFViewerFileActionsMenu({
         <DropdownMenuContent align="end" className="w-40">
           {showDownload ? (
             <DropdownMenuItem disabled={downloadDisabled} onClick={onDownload}>
-              {isPreparingDownload ? (
-                <InlineSpinner className="size-4" />
-              ) : (
-                <Download className="size-4" />
-              )}
+              <Download className="size-4" />
               Download
             </DropdownMenuItem>
           ) : null}
@@ -2625,12 +2622,3 @@ export const PDFViewer = React.forwardRef<PDFViewerHandle, PDFViewerProps>(
     )
   }
 )
-function InlineSpinner({ className, ...props }: InlineRegistryIconProps) {
-  return (
-    <LoaderCircle role="status" aria-label="Loading" className={cn("size-4 animate-spin", className)} {...props} />
-  )
-}
-type InlineRegistryIconProps = Omit<
-  React.ComponentProps<"svg">,
-  "children" | "strokeWidth"
-> & { strokeWidth?: number }

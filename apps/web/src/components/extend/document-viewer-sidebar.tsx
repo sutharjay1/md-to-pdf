@@ -95,7 +95,7 @@ export function DocumentViewerSidebarSkeleton({
   return (
     <div className={cn("w-40 shrink-0 border-r bg-sidebar p-4", className)}>
       <div className="mx-auto h-28 w-20 overflow-hidden rounded-md bg-background shadow-xs">
-        <div className="h-full animate-pulse bg-muted" />
+        <div className="h-full bg-muted" />
       </div>
       <div className="mx-auto mt-3 h-3 w-10 rounded-full bg-muted" />
     </div>

@@ -31,7 +31,7 @@ export function PdfView({ status, url, error, fileName, onRetry }: Props) {
     );
   }
   return (
-    <div className="h-full bg-muted" aria-label={copy.pdfFrameTitle}>
+    <div className="h-full bg-muted" role="region" aria-label={copy.pdfFrameTitle}>
       {url && (
         <div className={`h-full transition-opacity duration-(--dur-move) ${status === "rendering" ? "opacity-60" : "opacity-100"}`}>
           <Suspense fallback={null}>
