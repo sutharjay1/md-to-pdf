@@ -1,8 +1,8 @@
 # MD to PDF — design spec
 
 Date: 2026-09-05
-Status: draft, awaiting Jay's approval
-Repo: `md-to-pdf` (local, no remote yet)
+Status: approved by Jay on 2026-09-05 (Turborepo added at his request)
+Repo: https://github.com/sutharjay1/md-to-pdf (private)
 
 ---
 
@@ -32,18 +32,14 @@ setup. Nothing else. No accounts, no cloud storage, no sharing, no analytics.
 
 ---
 
-## 2. Decisions Jay still owns
+## 2. Decisions
 
-Everything below is decided except these three. The spec proceeds on the
-recommended option; change any of them and the plan updates.
-
-| # | Decision | Recommended | Why |
+| # | Decision | Chosen | Why |
 |---|---|---|---|
-| 1 | Front-end stack | Vite + React 19 + TypeScript + Tailwind v4 + shadcn/ui | shadcn/ui is React + Tailwind, so this is the smallest stack that satisfies the design-system requirement. Vite builds a static bundle Cloudflare serves as assets. |
+| 1 | Front-end stack | Turborepo + pnpm workspaces; Vite + React 19 + TypeScript + Tailwind v4 + shadcn/ui | Jay asked for Turborepo. shadcn/ui is React + Tailwind, so this is the smallest stack that satisfies the design-system requirement. Vite builds a static bundle Cloudflare serves as assets. |
 | 2 | PDF generation | Cloudflare Browser Rendering `/pdf` endpoint, called from one Worker route | Real PDF bytes, one-click download, Chrome fidelity. Alternatives in §10.4. |
-| 3 | Linear team | — | "Jay" or "kortix". Needed before the Linear project is created. |
-
----
+| 3 | Linear team | Jay | Jay's choice. |
+| 4 | Repository | `github.com/sutharjay1/md-to-pdf`, private | Jay asked for the repo; private until he flips it. |
 
 ## 3. References
 
@@ -61,6 +57,7 @@ recommended option; change any of them and the plan updates.
   - Limits: https://developers.cloudflare.com/browser-rendering/platform/limits/
   - Pricing: https://developers.cloudflare.com/browser-rendering/platform/pricing/
 - **Workers static assets**: https://developers.cloudflare.com/workers/static-assets/
+- **Turborepo**: https://turborepo.dev/ · **shadcn monorepo setup**: https://ui.shadcn.com/docs/monorepo
 - **marked**: https://marked.js.org · **highlight.js**: https://highlightjs.org · **morphdom**: https://github.com/patrick-steele-idem/morphdom
 
 What the Cursor reference taught us, in one list: surfaces are white or
@@ -88,23 +85,27 @@ worker (one route: POST /api/pdf)
   └─ streams the PDF back (application/pdf)
 ```
 
-One deployable: a Worker with an `assets` binding pointing at `dist/`. No
-database, no KV, no Durable Objects. The API token for Browser Rendering is a
-Worker secret.
+Turborepo layout: `apps/web` (the SPA), `apps/worker` (the Worker, with an
+`assets` binding pointing at `../web/dist`), `packages/markdown` (the render
+pipeline and `prose.css`, pure TypeScript, tested in node), `packages/ui`
+(shadcn components and the token stylesheet), `packages/tsconfig`. The
+packages ship source; Vite and Wrangler compile them where consumed. One
+deployable. No database, no KV, no Durable Objects. The API token for Browser
+Rendering is a Worker secret.
 
 Units and their contracts:
 
 | Unit | Does | Depends on |
 |---|---|---|
-| `lib/render.ts` | `render(markdown): Promise<string>` — fragment HTML | marked, highlight.js (lazy), video extension |
-| `lib/video.ts` | marked extension: image syntax with video/YouTube/Vimeo URL → embed | nothing |
-| `lib/pdf.ts` | `requestPdf(html, page): Promise<Blob>` | fetch |
-| `lib/storage.ts` | `loadDoc / saveDoc / loadPrefs / savePrefs` | localStorage |
-| `lib/text.ts` | `titleFrom(markdown): string`, `filenameFrom(title): string`, `wordCount(markdown): number` | nothing |
-| `worker/index.ts` | `/api/pdf` handler + asset fallthrough | Browser Rendering REST, ASSETS binding |
-| `styles/prose.css` | the document look, shared by Preview and PDF | nothing |
+| `packages/markdown/src/render.ts` | `render(markdown): Promise<string>` — fragment HTML | marked, highlight.js (lazy), video extension |
+| `packages/markdown/src/video.ts` | marked extension: image syntax with video/YouTube/Vimeo URL → embed | nothing |
+| `apps/web/src/lib/pdf.ts` | `requestPdf(html, page): Promise<Blob>` | fetch |
+| `apps/web/src/lib/storage.ts` | `loadDoc / saveDoc / loadPrefs / savePrefs` | localStorage |
+| `packages/markdown/src/text.ts` | `titleFrom(markdown): string`, `filenameFrom(title): string`, `wordCount(markdown): number` | nothing |
+| `apps/worker/src/index.ts` | `/api/pdf` handler + asset fallthrough | Browser Rendering REST, ASSETS binding |
+| `packages/markdown/prose.css` | the document look, shared by Preview and PDF | nothing |
 
-Each `lib/*` file is a pure module with a test file beside it.
+Every module above is pure and has a test file beside it.
 
 ---
 
@@ -174,7 +175,7 @@ All user-facing text, decided. Sentence case throughout. No exclamation marks.
 | Downloaded filename | `<title-slug>.pdf`, fallback `document.pdf` |
 | Footer (none) | — there is no footer |
 
-Welcome document (pre-filled on first visit, lives in `src/welcome.md`):
+Welcome document (pre-filled on first visit, lives in `apps/web/src/welcome.md`):
 
 ````markdown
 # Write on the left, get a PDF on the right
@@ -232,7 +233,7 @@ near-black because white on orange fails WCAG AA (measured: 3.44:1 on
 orange-600).
 
 Typography: Inter for interface and prose, Geist Mono for the editor, the HTML
-view, and code. Both self-hosted as variable woff2 in `public/fonts/`; never a
+view, and code. Both self-hosted as variable woff2 in `apps/web/public/fonts/`; never a
 font CDN request. Scale: 13px pane headers, 14px interface, 14px editor,
 16px prose, 13px code. `tabular-nums` on the word count.
 
@@ -432,7 +433,7 @@ every transition entirely: states change instantly, nothing parks or jumps.
 | Preview update | < 16 ms for a 5,000-word document |
 | Cold load to interactive (Cloudflare edge, 4G) | < 1 s |
 
-The budget is checked by a script in CI (`scripts/check-budget.mjs`) that fails
+The budget is checked by a script in CI (`apps/web/scripts/check-budget.mjs`) that fails
 the build above the limit.
 
 ---
@@ -459,7 +460,7 @@ the build above the limit.
 - **Manual before release**: render the welcome document to PDF on A4 and
   Letter; check page breaks, code wrapping, the YouTube thumbnail, and the
   `.mp4` placeholder. Test on Chrome, Safari, Firefox desktop, and iOS Safari.
-- **Budget**: `scripts/check-budget.mjs` in CI.
+- **Budget**: `apps/web/scripts/check-budget.mjs` in CI.
 
 ---
 
@@ -470,19 +471,21 @@ the build above the limit.
    brief also says lighter and faster. I have treated this as a transcription
    slip and left analytics out. If Matomo tracking is wanted, it is a single
    script tag behind a consent toggle and a separate task.
-2. **Linear team** — "Jay" or "kortix"?
-3. **Product name** — `MD to PDF` is used everywhere as the working name. Rename
-   is a find-and-replace in `src/copy.ts`.
+2. **Product name** — `MD to PDF` is used everywhere as the working name. Rename
+   is a find-and-replace in `apps/web/src/copy.ts`.
 
 ---
 
 ## 18. Deployment
 
-- `wrangler.jsonc`: `main: worker/index.ts`, `assets: { directory: "dist",
-  binding: "ASSETS", not_found_handling: "single-page-application" }`,
+- `apps/worker/wrangler.jsonc`: `main: src/index.ts`, `assets: { directory:
+  "../web/dist", binding: "ASSETS", not_found_handling:
+  "single-page-application", run_worker_first: ["/api/*"] }`,
   `compatibility_date` current.
 - Secrets: `CF_API_TOKEN` (Browser Rendering edit scope), `CF_ACCOUNT_ID`.
-- `pnpm build` → Vite → `dist/`; `pnpm deploy` → `wrangler deploy`.
+- `pnpm build` → turbo → Vite → `apps/web/dist/`; `pnpm deploy` → turbo runs
+  `web#build` then `wrangler deploy` in `apps/worker`.
+- The budget check runs inside `web#build` and fails the build over 100 KB.
 - Headers set by the Worker on HTML responses: `Content-Security-Policy`
   allowing `self`, fonts from `self`, images from `https:`, frames from
   `youtube-nocookie.com` and `player.vimeo.com`, and `blob:` for the PDF
