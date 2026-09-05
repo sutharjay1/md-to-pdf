@@ -1,4 +1,5 @@
 import type { MarkedExtension } from "marked";
+import { escapeHtml } from "./highlight";
 
 type Video = { kind: "file" } | { kind: "youtube"; id: string } | { kind: "vimeo"; id: string };
 
@@ -29,15 +30,11 @@ export function classifyVideo(url: string): Video | null {
   return null;
 }
 
-function esc(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-}
-
 export function videoHtml(url: string, alt: string): string | null {
   const video = classifyVideo(url);
   if (!video) return null;
-  const href = esc(url);
-  const label = esc(alt);
+  const href = escapeHtml(url);
+  const label = escapeHtml(alt);
   const caption = alt ? `<figcaption>${label}</figcaption>` : "";
 
   let player: string;

@@ -37,3 +37,8 @@ it("falls back to escaped plain code for unknown languages", async () => {
 it("opens external links in a new tab", async () => {
   expect(await render("[x](https://example.com)")).toContain('target="_blank" rel="noopener"');
 });
+
+it("escapes a quote in a link title", async () => {
+  const html = await render(`[x](https://example.com 'a "quote"')`);
+  expect(html).toContain('title="a &quot;quote&quot;"');
+});
