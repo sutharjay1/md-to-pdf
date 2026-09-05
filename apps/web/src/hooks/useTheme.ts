@@ -1,14 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { loadPrefs, savePrefs, type Theme } from "@/lib/storage";
 
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>(() => loadPrefs().theme);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    // sync the class from the stored theme once on mount; toggle() applies the class itself after that
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   function toggle() {
     const style = document.createElement("style");
