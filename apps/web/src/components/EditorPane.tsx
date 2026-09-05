@@ -7,7 +7,7 @@ import { wordCount } from "@md-to-pdf/markdown";
 
 type Props = { doc: string; onChange: (doc: string) => void; className?: string };
 
-const ACCEPT = /\.(md|markdown|txt)$/i;
+const ACCEPT = /\.(md|mdx|markdown|txt)$/i;
 
 export function EditorPane({ doc, onChange, className }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
@@ -60,7 +60,7 @@ export function EditorPane({ doc, onChange, className }: Props) {
             >
               {copy.open}
             </Button>
-            <input ref={fileRef} type="file" accept=".md,.markdown,.txt" className="hidden" onChange={onFile} />
+            <input ref={fileRef} type="file" accept=".md,.mdx,.markdown,.txt" className="hidden" onChange={onFile} />
           </span>
         </>
       }

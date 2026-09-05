@@ -21,6 +21,17 @@ it("rejects wrong file types", async () => {
   expect(onChange).not.toHaveBeenCalled();
 });
 
+it("opens .mdx files", async () => {
+  const onChange = vi.fn();
+  render(<EditorPane doc="" onChange={onChange} />);
+  const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+  const file = new File(["# hello mdx"], "note.mdx", { type: "text/mdx" });
+  // jsdom's File/Blob does not implement text(); patch this instance so the real onFile code path runs.
+  Object.defineProperty(file, "text", { value: () => Promise.resolve("# hello mdx") });
+  await userEvent.upload(input, file);
+  expect(onChange).toHaveBeenCalledWith("# hello mdx");
+});
+
 it("leaves the editor on Escape then Tab instead of inserting", async () => {
   const onChange = vi.fn();
   render(<EditorPane doc="one two" onChange={onChange} />);

@@ -24,7 +24,7 @@ export const copy = {
   pdfNotConfigured: "PDF rendering isn't set up yet. Add the Cloudflare credentials to the Worker and restart.",
   pdfEngineError: "Couldn't load the PDF viewer.",
   pdfDocumentError: "Couldn't open the PDF.",
-  openWrongType: "Open a .md, .markdown or .txt file.",
+  openWrongType: "Open a .md, .mdx, .markdown or .txt file.",
   replacedWith: (name: string) => `Replaced with ${name}.`,
   undo: "Undo",
   pdfFrameTitle: "PDF preview",

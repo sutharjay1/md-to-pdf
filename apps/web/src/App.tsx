@@ -91,11 +91,12 @@ export default function App() {
                     <Select value={page} onValueChange={(v) => onPageChange(v as Page)}>
                       <SelectTrigger
                         aria-label={copy.pageSize}
-                        className="h-7 w-auto gap-1 border-0 bg-transparent px-2 text-[13px] shadow-none"
+                        size="sm"
+                        className="w-auto gap-1 border-0 bg-transparent px-2 text-[13px] shadow-none data-[size=sm]:h-7"
                       >
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="popper" align="end" sideOffset={4}>
                         <SelectItem value="A4">{copy.pageSizes.A4}</SelectItem>
                         <SelectItem value="Letter">{copy.pageSizes.Letter}</SelectItem>
                       </SelectContent>
