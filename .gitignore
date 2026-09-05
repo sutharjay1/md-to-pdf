@@ -6,3 +6,4 @@ dist
 .wrangler
 apps/web/public/fonts
 coverage
+.claude/launch.json
