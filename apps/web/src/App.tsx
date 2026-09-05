@@ -51,12 +51,13 @@ export default function App() {
     function onKey(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
         e.preventDefault();
+        if (pdf.status === "rendering") return;
         void pdf.download(filenameFrom(titleFrom(doc)));
       }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [pdf.download, doc]);
+  }, [pdf.download, pdf.status, doc]);
 
   function onPageChange(next: Page) {
     setPage(next);
@@ -81,7 +82,9 @@ export default function App() {
           <Pane
             header={
               <>
-                <SegmentedControl value={outputView} onChange={setView} options={outputTabs} />
+                <div className="hidden lg:flex">
+                  <SegmentedControl value={outputView} onChange={setView} options={outputTabs} />
+                </div>
                 {outputView === "html" && <CopyButton text={html} />}
                 {outputView === "pdf" && (
                   <div className="flex items-center gap-3">

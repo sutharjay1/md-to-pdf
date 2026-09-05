@@ -19,11 +19,11 @@ export function AppBar({ onDownload, downloadDisabled, downloadLabel, children }
           size="sm"
           onClick={onDownload}
           disabled={downloadDisabled}
-          aria-label={copy.download}
+          aria-label={downloadLabel}
           className="active:scale-[0.97] transition-transform duration-(--dur-fast)"
         >
           <Download aria-hidden strokeWidth={1.5} className="size-4" />
-          <span className="hidden sm:inline">{downloadLabel}</span>
+          <span className="hidden lg:inline">{downloadLabel}</span>
         </Button>
       </div>
     </header>
