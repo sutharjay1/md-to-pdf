@@ -11,5 +11,8 @@
     "lib": "@/lib",
     "utils": "@md-to-pdf/ui/lib/utils",
     "ui": "@md-to-pdf/ui/components"
+  },
+  "registries": {
+    "@extend": "https://www.extend.ai/ui/r/{name}.json"
   }
 }

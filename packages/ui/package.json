@@ -7,8 +7,13 @@
     "./lib/*": "./src/lib/*.ts",
     "./styles/*": "./src/styles/*"
   },
-  "scripts": { "typecheck": "tsc --noEmit" },
-  "peerDependencies": { "react": "^19", "react-dom": "^19" },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^19",
+    "react-dom": "^19"
+  },
   "dependencies": {
     "class-variance-authority": "^0.7",
     "clsx": "^2",

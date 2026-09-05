@@ -1,9 +1,12 @@
+import { lazy, Suspense } from "react";
 import { Button } from "@md-to-pdf/ui/components/button";
 import { copy } from "@/copy";
 import type { PdfErrorCode } from "@/lib/pdf";
 import type { PdfStatus } from "@/hooks/usePdf";
 
-type Props = { status: PdfStatus; url: string | null; error: PdfErrorCode | null; onRetry: () => void };
+const PdfViewer = lazy(() => import("@/components/PdfViewer"));
+
+type Props = { status: PdfStatus; url: string | null; error: PdfErrorCode | null; fileName: string; onRetry: () => void };
 
 const messages: Record<PdfErrorCode, string> = {
   "rate-limited": copy.pdfRateLimited,
@@ -11,7 +14,7 @@ const messages: Record<PdfErrorCode, string> = {
   failed: copy.pdfError,
 };
 
-export function PdfView({ status, url, error, onRetry }: Props) {
+export function PdfView({ status, url, error, fileName, onRetry }: Props) {
   if (status === "error") {
     return (
       <div className="h-full flex flex-col items-center justify-center gap-3 bg-muted text-muted-foreground">
@@ -28,13 +31,13 @@ export function PdfView({ status, url, error, onRetry }: Props) {
     );
   }
   return (
-    <div className="h-full bg-muted">
+    <div className="h-full bg-muted" aria-label={copy.pdfFrameTitle}>
       {url && (
-        <iframe
-          title={copy.pdfFrameTitle}
-          src={url}
-          className={`h-full w-full border-0 transition-opacity duration-(--dur-move) ${status === "rendering" ? "opacity-60" : "opacity-100"}`}
-        />
+        <div className={`h-full transition-opacity duration-(--dur-move) ${status === "rendering" ? "opacity-60" : "opacity-100"}`}>
+          <Suspense fallback={null}>
+            <PdfViewer url={url} fileName={fileName} />
+          </Suspense>
+        </div>
       )}
     </div>
   );

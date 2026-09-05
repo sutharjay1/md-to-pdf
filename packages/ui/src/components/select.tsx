@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import { cn } from "@md-to-pdf/ui/lib/utils"
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react"

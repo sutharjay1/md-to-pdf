@@ -111,7 +111,13 @@ export default function App() {
           {outputView === "preview" && <PreviewView html={html} />}
           {outputView === "html" && <HtmlView html={html} />}
           {outputView === "pdf" && (
-            <PdfView status={pdf.status} url={pdf.url} error={pdf.error} onRetry={() => pdf.render()} />
+            <PdfView
+              status={pdf.status}
+              url={pdf.url}
+              error={pdf.error}
+              fileName={filenameFrom(titleFrom(doc))}
+              onRetry={() => pdf.render()}
+            />
           )}
         </Pane>
       </main>
