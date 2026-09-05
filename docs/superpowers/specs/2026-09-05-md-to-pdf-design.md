@@ -18,7 +18,7 @@ setup. Nothing else. No accounts, no cloud storage, no sharing, no analytics.
 **Goals**
 
 - Fast: usable in under a second on a cold load, preview updates as you type.
-- Light: the initial JavaScript bundle stays under 100 KB gzipped.
+- Light: the initial JavaScript bundle stays under 150 KB gzipped.
 - Calm: near-monochrome, one accent, subtle motion, no loops.
 - Easy: open the page, paste markdown, click **Download PDF**. Done.
 
@@ -427,14 +427,15 @@ every transition entirely: states change instantly, nothing parks or jumps.
 
 | Item | Budget |
 |---|---|
-| Initial JS (gzip) | ≤ 100 KB. React 19 ≈ 45, marked ≈ 12, morphdom ≈ 3, app ≈ 25 |
+| Initial JS (gzip) | ≤ 150 KB. React 19 ≈ 55, tailwind-merge ≈ 9, sonner ≈ 8, marked ≈ 7, Radix select + tooltip + floating-ui ≈ 15, morphdom ≈ 4, app ≈ 40 |
 | Lazy JS | highlight.js core + grammars ≈ 30 KB, loaded on first fenced block |
 | Fonts | Inter var + Geist Mono var, subset to Latin, ≈ 120 KB total, `font-display: swap` |
 | Preview update | < 16 ms for a 5,000-word document |
 | Cold load to interactive (Cloudflare edge, 4G) | < 1 s |
 
 The budget is checked by a script in CI (`apps/web/scripts/check-budget.mjs`) that fails
-the build above the limit.
+the build above the limit. Preact via `preact/compat` would bring this to about 90 KB; it
+is not adopted.
 
 ---
 

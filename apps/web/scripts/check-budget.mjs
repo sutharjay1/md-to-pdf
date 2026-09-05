@@ -2,7 +2,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 import path from "node:path";
 
-const LIMIT = 100 * 1024;
+const LIMIT = 150 * 1024;
 const dir = path.resolve("dist/assets");
 const html = readFileSync(path.resolve("dist/index.html"), "utf8");
 const initial = [...html.matchAll(/src="\/assets\/([^"]+\.js)"/g)].map((m) => m[1]);
