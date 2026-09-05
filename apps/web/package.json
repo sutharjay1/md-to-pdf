@@ -27,7 +27,6 @@
     "@embedpdf/plugin-zoom": "^2.15.0",
     "@md-to-pdf/markdown": "workspace:*",
     "@md-to-pdf/ui": "workspace:*",
-    "highlight.js": "^11",
     "lucide-react": "latest",
     "morphdom": "^2.7",
     "pdf-lib": "^1.17.1",

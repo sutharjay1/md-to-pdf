@@ -58,7 +58,7 @@ import {
 import { useZoom, ZoomPluginPackage } from "@embedpdf/plugin-zoom/react"
 import { flushSync } from "react-dom"
 
-import { loadSharedPdfEngine } from "@/lib/pdf-thumbnail-utils"
+import { loadSharedPdfEngine } from "@/lib/pdf-engine"
 import { copy } from "@/copy"
 import { cn } from "@md-to-pdf/ui/lib/utils"
 import { Button } from "@md-to-pdf/ui/components/button"
@@ -426,7 +426,7 @@ function PDFViewerLoadingSkeleton({
 function PDFViewerFallbackShell({
   className,
   defaultZoom,
-  errorMessage = "Unable to load the PDF preview.",
+  errorMessage = copy.pdfDocumentError,
   showDownload,
   showRotateControls,
   showToolbar,
@@ -2556,7 +2556,7 @@ export const PDFViewer = React.forwardRef<PDFViewerHandle, PDFViewerProps>(
         <PDFViewerFallbackShell
           className={className}
           defaultZoom={defaultZoom}
-          errorMessage="Unable to load the PDF engine."
+          errorMessage={copy.pdfEngineError}
           showDownload={showDownload}
           showRotateControls={showRotateControls}
           showToolbar={showToolbar}

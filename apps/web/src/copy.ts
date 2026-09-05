@@ -21,6 +21,8 @@ export const copy = {
   pdfError: "Couldn't render the PDF.",
   pdfRateLimited: "Too many requests. Wait a moment and try again.",
   pdfTooLarge: "The document is too large to render. Trim it to under 2 MB of HTML.",
+  pdfEngineError: "Couldn't load the PDF viewer.",
+  pdfDocumentError: "Couldn't open the PDF.",
   openWrongType: "Open a .md, .markdown or .txt file.",
   replacedWith: (name: string) => `Replaced with ${name}.`,
   undo: "Undo",

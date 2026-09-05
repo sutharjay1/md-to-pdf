@@ -49,7 +49,7 @@ export function EditorPane({ doc, onChange, className }: Props) {
       className={className}
       header={
         <>
-          <span className="text-muted-foreground">{copy.editorLabel}</span>
+          <label htmlFor="editor" className="text-muted-foreground">{copy.editorLabel}</label>
           <span className="flex items-center gap-3">
             <span className="text-muted-foreground tabular-nums">{copy.words(wordCount(doc))}</span>
             <Button
@@ -69,7 +69,7 @@ export function EditorPane({ doc, onChange, className }: Props) {
         {copy.editorTabHint}
       </p>
       <textarea
-        aria-label={copy.editorLabel}
+        id="editor"
         aria-describedby="editor-tab-hint"
         value={doc}
         onChange={(e) => onChange(e.target.value)}
