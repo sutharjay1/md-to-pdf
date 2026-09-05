@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Toaster } from "@md-to-pdf/ui/components/sonner";
 import { titleFrom } from "@md-to-pdf/markdown";
 import { AppBar } from "@/components/AppBar";
+import { CopyButton } from "@/components/CopyButton";
 import { EditorPane } from "@/components/EditorPane";
+import { HtmlView } from "@/components/HtmlView";
 import { Pane } from "@/components/Pane";
 import { PreviewView } from "@/components/PreviewView";
 import { SegmentedControl, type View } from "@/components/SegmentedControl";
@@ -36,10 +38,16 @@ export default function App() {
       <main className="min-h-0 flex-1 grid lg:grid-cols-2">
         <EditorPane doc={doc} onChange={setDoc} className={`lg:border-r ${view === "write" ? "" : "hidden lg:flex"}`} />
         <Pane
-          header={<SegmentedControl value={outputView} onChange={setView} options={outputTabs} />}
+          header={
+            <>
+              <SegmentedControl value={outputView} onChange={setView} options={outputTabs} />
+              {outputView === "html" && <CopyButton text={html} />}
+            </>
+          }
           className={view === "write" ? "hidden lg:flex" : ""}
         >
           {outputView === "preview" && <PreviewView html={html} />}
+          {outputView === "html" && <HtmlView html={html} />}
         </Pane>
       </main>
       <Toaster position="bottom-center" />
