@@ -167,12 +167,11 @@ All user-facing text, decided. Sentence case throughout. No exclamation marks.
 | Preview, empty | `Nothing to preview yet.` |
 | HTML tab, action | `Copy` → `Copied` (reverts after 1.5 s) |
 | HTML tab, empty | `No HTML yet.` |
-| PDF tab, rendering | `Rendering…` |
-| PDF tab, stale | `Update` |
-| PDF tab, page size | `A4` · `Letter` |
-| PDF tab, error (generic) | `Couldn't render the PDF.` + `Try again` |
-| PDF tab, error (rate limit) | `Too many requests. Wait a moment and try again.` |
-| PDF tab, error (too large) | `The document is too large to render. Trim it to under 2 MB of HTML.` |
+| Download, rendering | `Rendering…` (button label while a render is in flight) |
+| Page size (app bar) | `A4` · `Letter` |
+| Download, error (generic) | toast `Couldn't render the PDF.` |
+| Download, error (rate limit) | toast `Too many requests. Wait a moment and try again.` |
+| Download, error (too large) | toast `The document is too large to render. Trim it to under 2 MB of HTML.` |
 | Open file, wrong type | `Open a .md, .markdown or .txt file.` |
 | Open file, replaces content | no confirmation dialog; the current doc is kept in a one-step undo: `Replaced with <name>.` + `Undo` (a toast, 6 s) |
 | Downloaded filename | `<title-slug>.pdf`, fallback `document.pdf` |
@@ -357,7 +356,7 @@ renderer paints Geist Mono invisibly inside that card. Page size comes from
 
 | Option | Why not |
 |---|---|
-| Client-only: print stylesheet + `window.print()` | Zero backend and instant, but "download" becomes the browser's print dialog with "Save as PDF" chosen by hand, and there is no real PDF to show in the PDF tab. Kept as the documented fallback if the Worker is ever removed. |
+| Client-only: print stylesheet + `window.print()` | Zero backend and instant, but "download" becomes the browser's print dialog with "Save as PDF" chosen by hand, and no real PDF bytes. Kept as the documented fallback if the Worker is ever removed. |
 | Client-side PDF library (pdfmake, jsPDF) | Real bytes, no backend, but 1 MB+ of lazy code and a hand-written markdown→PDF mapping that never matches the preview. |
 | Worker with `@cloudflare/puppeteer` binding | Same engine as the REST endpoint with more code (session management) and no benefit at this size. |
 
