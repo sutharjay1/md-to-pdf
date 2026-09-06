@@ -109,6 +109,11 @@
   }
   html { color-scheme: light; }
   html.dark { color-scheme: dark; }
+  /* The app is a shell the height of the window whose panes scroll inside themselves, so the page itself
+     never scrolls. Said here as well as on the shell because libraries measure by appending to <body>, and
+     a scratch node taller than the window would otherwise put a scrollbar down the side of the whole site.
+     clip rather than hidden: hidden leaves a scroller the browser can still scroll to reach a focused node. */
+  html { overflow: clip; }
   body {
     @apply bg-background text-foreground text-sm antialiased;
     font-family: var(--font-sans);

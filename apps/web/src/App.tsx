@@ -17,6 +17,9 @@ import { useSyncedScroll } from "@/hooks/useSyncedScroll";
 import { useTheme } from "@/hooks/useTheme";
 import { loadPrefs, savePrefs, type LinkStyle, type Page } from "@/lib/storage";
 
+const SAVE_KEY = "s";
+const THEME_KEY = "d";
+
 const mobileTabs: { value: View; label: string }[] = [
   { value: "write", label: copy.tabs.write },
   { value: "preview", label: copy.tabs.preview },
@@ -40,15 +43,21 @@ export default function App() {
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
+      if (!e.metaKey && !e.ctrlKey) return;
+      const key = e.key.toLowerCase();
+      if (key === SAVE_KEY) {
         e.preventDefault();
         if (pdf.status === "rendering") return;
         void pdf.download(filenameFrom(titleFrom(doc)));
       }
+      if (key === THEME_KEY) {
+        e.preventDefault();
+        toggleTheme();
+      }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [pdf.download, pdf.status, doc]);
+  }, [pdf.download, pdf.status, doc, toggleTheme]);
 
   function onPageChange(next: Page) {
     setPage(next);

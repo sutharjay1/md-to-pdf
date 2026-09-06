@@ -56,3 +56,18 @@ it("shows a toast when the PDF request fails", async () => {
 
   await waitFor(() => expect(screen.getByText(copy.pdfError)).toBeInTheDocument());
 });
+
+it("toggles the theme with Cmd/Ctrl+D", () => {
+  document.documentElement.classList.remove("dark");
+  render(<App />);
+
+  fireEvent.keyDown(window, { key: "d", metaKey: true });
+  expect(document.documentElement.classList.contains("dark")).toBe(true);
+  expect(localStorage.getItem("md2pdf:theme")).toBe("dark");
+
+  fireEvent.keyDown(window, { key: "D", ctrlKey: true });
+  expect(document.documentElement.classList.contains("dark")).toBe(false);
+
+  fireEvent.keyDown(window, { key: "d" }); // bare d belongs to the editor
+  expect(document.documentElement.classList.contains("dark")).toBe(false);
+});

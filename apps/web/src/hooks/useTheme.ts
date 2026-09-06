@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { loadPrefs, savePrefs, type Theme } from "@/lib/storage";
 
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>(() => loadPrefs().theme);
 
-  function toggle() {
+  // Stable between renders so a keyboard shortcut can hold it without resubscribing on every keystroke.
+  const toggle = useCallback(() => {
     const style = document.createElement("style");
     style.textContent = "*,*::before,*::after{transition:none!important}";
     document.head.appendChild(style);
@@ -16,7 +17,7 @@ export function useTheme() {
     setTheme(next);
 
     requestAnimationFrame(() => style.remove());
-  }
+  }, [theme]);
 
   return { theme, toggle };
 }

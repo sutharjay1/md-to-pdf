@@ -15,13 +15,29 @@ async function load(): Promise<Mermaid> {
   return mermaid;
 }
 
-async function draw(mermaid: Mermaid, code: string): Promise<string> {
+/**
+ * Mermaid draws by laying the diagram out for real and measuring it, and given no element of its own it
+ * appends that working copy straight to <body>. On a cold load the welcome file's diagrams go through one
+ * at a time, and each one in turn makes the page taller than the window, so a scrollbar sits down the side
+ * of the whole site until the last one is done. The stage is laid out, so the measurements stay honest, but
+ * fixed and out of the page's flow, so nothing drawn in it can scroll the page.
+ */
+function openStage(): HTMLDivElement {
+  const el = document.createElement("div");
+  el.setAttribute("aria-hidden", "true");
+  el.style.cssText = "position:fixed;top:0;left:0;width:100vw;visibility:hidden;pointer-events:none;";
+  document.body.appendChild(el);
+  return el;
+}
+
+async function draw(mermaid: Mermaid, code: string, stage: HTMLElement): Promise<string> {
   const hit = cache.get(code);
   if (hit) return hit;
   const id = `diagram-${(seq += 1)}`;
   let out: string;
   try {
-    const { svg } = await mermaid.render(id, code);
+    // Everything mermaid leaves behind, on the way through or after a parse error, lands inside the stage.
+    const { svg } = await mermaid.render(id, code, stage);
     out = `<figure class="diagram">${svg}</figure>`;
   } catch (err) {
     const message = err instanceof Error ? err.message.split("\n")[0] : "Invalid diagram";
@@ -30,9 +46,6 @@ async function draw(mermaid: Mermaid, code: string): Promise<string> {
     pre.setAttribute("data-error", message);
     pre.textContent = code;
     out = pre.outerHTML;
-  } finally {
-    document.getElementById(id)?.remove();
-    document.getElementById(`d${id}`)?.remove();
   }
   if (cache.size > 200) cache.delete(cache.keys().next().value as string);
   cache.set(code, out);
@@ -56,15 +69,20 @@ export async function inlineDiagrams(html: string): Promise<string> {
   if (!blocks.length) return html;
   lib ??= load();
   const mermaid = await lib;
-  let out = "";
-  let at = 0;
-  // Sequential on purpose: mermaid lays each diagram out in the live DOM, and drawing 21 of them with
-  // Promise.all measured 3.3-4.6s against 0.58s one at a time.
-  for (const block of blocks) {
-    out += html.slice(at, block.index) + (await draw(mermaid, unescape(block[1])));
-    at = block.index + block[0].length;
+  const stage = openStage();
+  try {
+    let out = "";
+    let at = 0;
+    // Sequential on purpose: mermaid lays each diagram out in the live DOM, and drawing 21 of them with
+    // Promise.all measured 3.3-4.6s against 0.58s one at a time.
+    for (const block of blocks) {
+      out += html.slice(at, block.index) + (await draw(mermaid, unescape(block[1]), stage));
+      at = block.index + block[0].length;
+    }
+    return out + html.slice(at);
+  } finally {
+    stage.remove();
   }
-  return out + html.slice(at);
 }
 
 /** True when a diagram still has to be drawn, which takes long enough that the text should be shown first. */

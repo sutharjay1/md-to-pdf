@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { copy } from "@/copy";
+import { trackSave } from "@/lib/analytics";
 import { PdfError, requestPdf, type PdfErrorCode } from "@/lib/pdf";
 import type { Page } from "@/lib/storage";
 
@@ -41,6 +42,7 @@ export function usePdf(html: string, page: Page) {
     const fresh = renderedFor.current?.html === html && renderedFor.current?.page === page ? blobRef.current : null;
     const blob = fresh ?? (await render());
     if (!blob) return;
+    trackSave();
     const a = document.createElement("a");
     const href = URL.createObjectURL(blob);
     a.href = href;
