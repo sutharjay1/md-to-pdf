@@ -1,6 +1,6 @@
 import { classifyRef, type Ref } from "@md-to-pdf/markdown";
 
-export type RefState = "open" | "closed" | "merged";
+export type RefState = "open" | "closed" | "merged" | "draft";
 export type RefDetails = { title: string; state: RefState; author?: string; createdAt?: string; comments?: number };
 
 const cache = new Map<string, RefDetails | null>();
@@ -10,6 +10,7 @@ type Payload = {
   title?: string;
   state?: string;
   pull_request?: { merged_at?: string | null };
+  draft?: boolean;
   user?: { login?: string };
   author?: { username?: string };
   created_at?: string;
@@ -22,8 +23,9 @@ async function lookup(ref: Ref): Promise<RefDetails | null> {
   if (!res.ok) return null;
   const json = (await res.json()) as Payload;
   if (typeof json.title !== "string") return null;
+  const open = json.state === "open" || json.state === "opened";
   const state: RefState =
-    json.pull_request?.merged_at || json.state === "merged" ? "merged" : json.state === "open" || json.state === "opened" ? "open" : "closed";
+    json.pull_request?.merged_at || json.state === "merged" ? "merged" : open && json.draft ? "draft" : open ? "open" : "closed";
   return {
     title: json.title,
     state,
@@ -50,18 +52,19 @@ function fill(anchor: Element, details: RefDetails): void {
   main.append(span("ref-title", details.title));
   anchor.prepend(main);
   anchor.setAttribute("title", details.title);
-  const source = anchor.querySelector(".ref-source");
-  if (source) {
-    if (details.author) source.append(span("ref-author", details.author));
-    const date = details.createdAt ? formatDate(details.createdAt) : "";
-    if (date) source.append(span("ref-date", date));
-    if (typeof details.comments === "number" && details.comments > 0) {
-      source.append(span("ref-comments", `${details.comments} ${details.comments === 1 ? "comment" : "comments"}`));
-    }
+  const head = anchor.querySelector(".ref-head");
+  if (!head) return;
+  const side = span("ref-side", "");
+  if (details.author) side.append(span("ref-author", details.author));
+  const date = details.createdAt ? formatDate(details.createdAt) : "";
+  if (date) side.append(span("ref-date", date));
+  if (typeof details.comments === "number" && details.comments > 0) {
+    side.append(span("ref-comments", `${details.comments} ${details.comments === 1 ? "comment" : "comments"}`));
   }
+  if (side.childElementCount) head.append(side);
   const state = span("ref-state", details.state[0].toUpperCase() + details.state.slice(1));
   state.dataset.state = details.state;
-  anchor.querySelector(".ref-head")?.append(state);
+  head.append(state);
 }
 
 /**

@@ -53,13 +53,18 @@
 .doc p > a.ref { margin: 0.35em 0; }
 .doc a.ref .ref-main { min-width: 0; }
 .doc a.ref .ref-title { font-size: 1em; font-weight: 500; color: var(--foreground, #171717); overflow-wrap: anywhere; }
-.doc a.ref .ref-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.3em 1.2em; font-size: 0.8em; color: var(--muted-foreground, #737373); }
-.doc a.ref .ref-source { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3em 0.55em; min-width: 0; }
-.doc a.ref .ref-source > span + span::before { content: "·"; margin-right: 0.55em; color: var(--border, #e5e5e5); }
+.doc a.ref .ref-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3em 1.1em; font-size: 0.8em; color: var(--muted-foreground, #737373); }
+.doc a.ref .ref-source, .doc a.ref .ref-side { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3em 0.55em; min-width: 0; }
+.doc a.ref .ref-source { flex: 1 1 auto; }
+.doc a.ref .ref-side { margin-left: auto; }
+.doc a.ref .ref-source > span + span::before, .doc a.ref .ref-side > span + span::before { content: "·"; margin-right: 0.55em; color: var(--border, #e5e5e5); }
 .doc a.ref .ref-provider { font-weight: 600; color: var(--foreground, #171717); }
 .doc a.ref .ref-repo { font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
-.doc a.ref .ref-state { flex: none; margin-left: auto; font-weight: 600; color: #737373; }
-.doc a.ref .ref-state::before { content: ""; display: inline-block; width: 0.6em; height: 0.6em; margin-right: 0.45em; border-radius: 50%; background: currentColor; vertical-align: 0.05em; }
+.doc a.ref .ref-state { flex: none; margin-left: auto; padding: 0.15em 0.65em; border-radius: 999px; font-weight: 600; color: #737373; background: color-mix(in oklab, currentColor 12%, transparent); }
+.doc a.ref .ref-side + .ref-state { margin-left: 0; }
+.doc a.ref .ref-state::before { content: ""; display: inline-block; width: 0.55em; height: 0.55em; margin-right: 0.45em; border-radius: 50%; background: currentColor; vertical-align: 0.05em; }
+.doc a.ref .ref-state[data-state="draft"] { color: #57606a; }
+.dark .doc a.ref .ref-state[data-state="draft"] { color: #9ea7b3; }
 .doc a.ref .ref-state[data-state="open"] { color: #1a7f37; }
 .doc a.ref .ref-state[data-state="merged"] { color: #8250df; }
 .doc a.ref .ref-state[data-state="closed"] { color: #cf222e; }
@@ -123,6 +128,7 @@
   .doc a.ref .ref-provider, .doc a.ref .ref-title { color: #171717; }
   .doc a.ref .ref-head { color: #737373; }
   .doc a.ref .ref-state { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .doc a.ref .ref-state[data-state="draft"] { color: #57606a; }
   .doc thead { display: table-header-group; }
   .doc pre { white-space: pre-wrap; word-break: break-word; background: #f5f5f5; }
   .doc a { color: #171717; text-decoration-color: #737373; }

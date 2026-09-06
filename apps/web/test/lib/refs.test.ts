@@ -33,7 +33,7 @@ it("fetches once, calls onUpdate, then fills title, state and meta from cache", 
   expect(fetchMock).toHaveBeenCalledWith("https://api.github.com/repos/o/r/issues/1", expect.anything());
   const second = inlineRefs(card(href), () => {});
   expect(second).toContain('<span class="ref-main"><span class="ref-title">Fix the thing</span></span><span class="ref-head">');
-  expect(second).toContain('<span class="ref-kind">Pull request</span><span class="ref-author">jay</span><span class="ref-date">6 Jan 2026</span><span class="ref-comments">3 comments</span></span><span class="ref-state" data-state="merged">Merged</span></span>');
+  expect(second).toContain('<span class="ref-kind">Pull request</span></span><span class="ref-side"><span class="ref-author">jay</span><span class="ref-date">6 Jan 2026</span><span class="ref-comments">3 comments</span></span><span class="ref-state" data-state="merged">Merged</span></span>');
   expect(second).toContain('title="Fix the thing"');
   expect(fetchMock).toHaveBeenCalledTimes(1);
 });
@@ -44,8 +44,15 @@ it("maps GitLab fields and singular comment", async () => {
   await new Promise<void>((r) => inlineRefs(card(href), r));
   const out = inlineRefs(card(href), () => {});
   expect(out).toContain('data-state="open">Open</span>');
-  expect(out).toContain('<span class="ref-author">ana</span><span class="ref-comments">1 comment</span></span><span class="ref-state" data-state="open">Open</span>');
+  expect(out).toContain('<span class="ref-side"><span class="ref-author">ana</span><span class="ref-comments">1 comment</span></span><span class="ref-state" data-state="open">Open</span>');
   expect(out).not.toContain("ref-date");
+});
+
+it("marks draft pull requests as Draft", async () => {
+  fetchMock.mockResolvedValue({ ok: true, json: async () => ({ title: "WIP", state: "open", draft: true, pull_request: { merged_at: null } }) });
+  const href = "https://github.com/o/r/pull/4";
+  await new Promise<void>((r) => inlineRefs(card(href), r));
+  expect(inlineRefs(card(href), () => {})).toContain('<span class="ref-state" data-state="draft">Draft</span>');
 });
 
 it("keeps the basic card when the API says no", async () => {
