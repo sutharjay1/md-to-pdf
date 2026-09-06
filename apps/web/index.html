@@ -5,11 +5,124 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <title>MD to PDF</title>
+
+    <title>Markdown to PDF — free online converter with live preview</title>
+    <meta
+      name="description"
+      content="Convert Markdown to a clean PDF in your browser. Live preview, GitHub-flavored Markdown, Mermaid diagrams, LaTeX math and syntax highlighting. Free, no sign-up, no watermark."
+    />
+    <link rel="canonical" href="https://mdtopdf.in/" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#252525" media="(prefers-color-scheme: dark)" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="MD to PDF" />
+    <meta property="og:url" content="https://mdtopdf.in/" />
+    <meta property="og:title" content="Markdown to PDF — free online converter with live preview" />
+    <meta
+      property="og:description"
+      content="Write Markdown on the left, get a clean PDF on the right. Mermaid diagrams, LaTeX math, tables and syntax highlighting. Free, no sign-up."
+    />
+    <meta property="og:image" content="https://mdtopdf.in/og/default.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="MD to PDF — Markdown to PDF, in your browser." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@sutharjay0" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "@id": "https://mdtopdf.in/#app",
+            "name": "MD to PDF",
+            "alternateName": "Markdown to PDF converter",
+            "url": "https://mdtopdf.in/",
+            "applicationCategory": "UtilitiesApplication",
+            "operatingSystem": "Any browser",
+            "browserRequirements": "Requires JavaScript",
+            "description": "Convert Markdown to a clean PDF in the browser, with a live preview, GitHub-flavored Markdown, Mermaid diagrams, LaTeX math and syntax highlighting.",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+            "featureList": [
+              "Markdown to PDF conversion",
+              "Live preview while typing",
+              "GitHub-flavored Markdown: tables, task lists, footnotes",
+              "Mermaid diagrams",
+              "LaTeX math",
+              "Syntax-highlighted code blocks",
+              "A4 and US Letter page sizes",
+              "Reference cards for GitHub and GitLab links",
+              "Works without an account, and keeps the document in the browser"
+            ],
+            "author": { "@type": "Person", "name": "Jay Suthar", "url": "https://x.com/sutharjay0" }
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://mdtopdf.in/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "How do I convert Markdown to PDF?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Paste or write Markdown in the left pane, check the live preview on the right, then press Download PDF (or Cmd/Ctrl+S). No account or upload step."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Is it free?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. There is no sign-up, no watermark on the PDF, and no limit on how many documents you convert."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Does the PDF keep Mermaid diagrams and math?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Mermaid diagrams are drawn as vector SVG and carried into the PDF, and LaTeX math is emitted as MathML, so both stay sharp at any zoom."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Is my document uploaded anywhere?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "The document lives in your browser's local storage and is rendered there. Only the final HTML is sent to the renderer when you ask for the PDF; nothing is stored afterwards."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+
     <script src="https://app.kobbe.io/tracker.js" data-token="e1570802.Az2xikjFZzD3g7GjElt_OOE88UnSsiNd" defer></script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <h1>Markdown to PDF</h1>
+      <p>
+        A free online Markdown to PDF converter. Write Markdown on the left, watch the rendered page on the right, and
+        download a clean PDF. It needs JavaScript, because the document is rendered in your browser rather than uploaded
+        to a server.
+      </p>
+      <h2>What it converts</h2>
+      <ul>
+        <li>GitHub-flavored Markdown: tables, task lists, footnotes, strikethrough</li>
+        <li>Mermaid diagrams, drawn as vector SVG and carried into the PDF</li>
+        <li>LaTeX math, written as MathML so the PDF needs no extra fonts</li>
+        <li>Syntax-highlighted code blocks</li>
+        <li>Images, video links, and YAML front matter</li>
+        <li>Reference cards for GitHub and GitLab issues, pull requests and merge requests</li>
+      </ul>
+      <p>A4 or US Letter, free, no sign-up, and no watermark.</p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -77,3 +77,11 @@ it("toggles the theme on a bare D, and leaves the letter alone while typing", ()
   fireEvent.keyDown(window, { key: "d", altKey: true });
   expect(document.documentElement.classList.contains("dark")).toBe(false);
 });
+
+it("keeps the indexable title until the reader has a document of their own", () => {
+  render(<App />);
+  expect(document.title).toBe(copy.siteTitle);
+
+  fireEvent.change(screen.getByRole("textbox"), { target: { value: "# Quarterly report\n\nhi" } });
+  expect(document.title).toBe("Quarterly report · MD to PDF");
+});

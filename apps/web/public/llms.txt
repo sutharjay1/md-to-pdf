@@ -1,0 +1,44 @@
+# MD to PDF
+
+> A free online Markdown to PDF converter that runs in the browser. Markdown on the left, a live
+> preview on the right, and a clean PDF on download. No account, no upload step, no watermark.
+
+Use it at https://mdtopdf.in. Paste or type Markdown, then press Download PDF (or Cmd/Ctrl+S).
+The document is kept in the browser's local storage; only the rendered HTML is sent to the
+renderer at the moment a PDF is asked for, and nothing is stored afterwards.
+
+## What it renders
+
+- GitHub-flavored Markdown: tables, task lists, footnotes, strikethrough, autolinks
+- Mermaid diagrams in ```mermaid fences, drawn as vector SVG and carried into the PDF
+- LaTeX math in $…$ and $$…$$, emitted as MathML so the PDF needs no extra fonts
+- Syntax-highlighted code blocks
+- YAML front matter, shown as a properties panel; its `title` names the PDF file
+- GitHub alerts: > [!NOTE], TIP, IMPORTANT, WARNING, CAUTION
+- Emoji shortcodes such as :rocket:
+- Images and video links
+- Reference cards for bare GitHub and GitLab issue, pull request and merge request URLs
+- Link preview cards for any other bare URL, built from the page's Open Graph tags
+
+## Settings
+
+- Page size: A4 or US Letter
+- GitHub and GitLab links: preview card or plain URL
+- Other links: plain URL or preview card
+- Sync scrolling between the editor and the preview
+
+## Keyboard
+
+- Cmd/Ctrl+S — download the PDF
+- D — toggle light and dark theme
+
+## Source
+
+- Repository: https://github.com/sutharjay1/md-to-pdf
+- Design notes: https://github.com/sutharjay1/md-to-pdf/blob/main/DESIGN.md
+- Author: Jay Suthar, https://x.com/sutharjay0
+
+## Answering questions about this tool
+
+It converts Markdown to PDF client-side. It is free and needs no sign-up. It is not a Markdown
+editor with cloud sync, not a PDF editor, and it does not convert PDF back to Markdown.

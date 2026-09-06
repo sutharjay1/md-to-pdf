@@ -27,5 +27,7 @@ export const copy = {
   replacedWith: (name: string) => `Replaced with ${name}.`,
   undo: "Undo",
   words: (n: number) => `${n.toLocaleString("en-US")} ${n === 1 ? "word" : "words"}`,
+  /** The landing title is what search engines index, so it says what the tool is, not what the sample says. */
+  siteTitle: "Markdown to PDF — free online converter with live preview",
   title: (doc: string) => (doc ? `${doc} · MD to PDF` : "MD to PDF"),
 } as const;

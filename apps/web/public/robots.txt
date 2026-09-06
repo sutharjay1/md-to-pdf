@@ -1,0 +1,35 @@
+# https://mdtopdf.in — a Markdown to PDF converter. Everything here is public.
+User-agent: *
+Allow: /
+
+# Answer engines and coding agents are welcome; /llms.txt describes the site for them.
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-User
+Allow: /
+User-agent: Claude-SearchBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Perplexity-User
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: Applebot
+Allow: /
+User-agent: Applebot-Extended
+Allow: /
+User-agent: Bingbot
+Allow: /
+User-agent: DuckDuckBot
+Allow: /
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://mdtopdf.in/sitemap.xml

@@ -35,7 +35,7 @@ const mobileTabs: { value: View; label: string }[] = [
 
 export default function App() {
   const [view, setView] = useState<View>("preview");
-  const { doc, setDoc } = useDocument();
+  const { doc, setDoc, isWelcome } = useDocument();
   const [page, setPage] = useState<Page>(() => loadPrefs().page);
   const [refs, setRefs] = useState<LinkStyle>(() => loadPrefs().refs);
   const [links, setLinks] = useState<LinkStyle>(() => loadPrefs().links);
@@ -46,8 +46,8 @@ export default function App() {
   const scroll = useSyncedScroll(syncScroll);
 
   useEffect(() => {
-    document.title = copy.title(titleFrom(doc));
-  }, [doc]);
+    document.title = isWelcome ? copy.siteTitle : copy.title(titleFrom(doc));
+  }, [doc, isWelcome]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {

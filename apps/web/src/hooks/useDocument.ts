@@ -18,5 +18,5 @@ export function useDocument() {
     return () => window.removeEventListener("pagehide", flush);
   }, []);
 
-  return { doc, setDoc };
+  return { doc, setDoc, isWelcome: doc === welcome };
 }

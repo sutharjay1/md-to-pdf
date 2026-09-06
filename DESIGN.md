@@ -189,6 +189,20 @@ container query, not a viewport one, because the card lives in a pane, not a pag
 repo path is text the reader can never recover. The title unclamps, the source wraps, the date
 moves to its own line, and `break-inside: avoid` keeps a card whole.
 
+## The social card
+
+`apps/web/public/og/default.png`, written by `pnpm og`
+([`scripts/make-og-card.mjs`](scripts/make-og-card.mjs)) and committed — not built. It is
+ported from exact-kb's generator unchanged, so both sites unfurl as the same family: the mark
+and an orange uppercase eyebrow at the top left, the promise set large and anchored to the
+bottom, one grey line under it, on `#f8f8f8`.
+
+Two traps are already handled in there, and the comments say why. resvg cannot read `woff2`,
+so the site's own Inter is decompressed to a real `sfnt` with `wawoff2` at render time rather
+than a lookalike being substituted; and `inter-ui`'s static instances carry their weight in the
+family name, so the semibold text asks for the family "Inter SemiBold" — asking for "Inter" at
+`font-weight: 600` silently renders Regular.
+
 ## House rules
 
 - Tokens over literal colours; if it needs a new colour, name it first.
