@@ -61,10 +61,12 @@ function fill(anchor: Element, details: RefDetails): void {
   if (typeof details.comments === "number" && details.comments > 0) {
     side.append(span("ref-comments", `${details.comments} ${details.comments === 1 ? "comment" : "comments"}`));
   }
-  if (side.childElementCount) head.append(side);
   const state = span("ref-state", details.state[0].toUpperCase() + details.state.slice(1));
   state.dataset.state = details.state;
-  head.append(state);
+  const end = span("ref-end", "");
+  if (side.childElementCount) end.append(side);
+  end.append(state);
+  head.append(end);
 }
 
 /**
