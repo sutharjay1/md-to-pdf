@@ -3,7 +3,15 @@ node_modules
 dist
 .turbo
 .dev.vars
-.wrangler
+# Wrangler's own scratch state stays out, at any depth, except the one file at the root that
+# points `wrangler deploy` at the worker: Cloudflare Workers Builds runs it from the workspace
+# root, where wrangler cannot otherwise tell which application to ship.
+**/.wrangler/
+!/.wrangler/
+/.wrangler/*
+!/.wrangler/deploy/
+/.wrangler/deploy/*
+!/.wrangler/deploy/config.json
 apps/web/public/fonts
 coverage
 .claude/launch.json
