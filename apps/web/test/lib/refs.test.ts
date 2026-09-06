@@ -28,13 +28,13 @@ it("fetches once, calls onUpdate, then fills title, state and meta from cache", 
   const updated = new Promise<void>((r) => (resolveUpdate = r));
   const first = inlineRefs(card(href), resolveUpdate);
   expect(first).not.toContain("ref-title");
-  expect(first).toContain('<span class="ref-repo">o/r#1</span><span class="ref-kind">Pull request</span>');
+  expect(first).toContain('<span class="ref-repo">o/r#1</span></span></span><span class="ref-meta"><span class="ref-kind">Pull request</span>');
   await updated;
   expect(fetchMock).toHaveBeenCalledTimes(1);
   expect(fetchMock).toHaveBeenCalledWith("https://api.github.com/repos/o/r/issues/1", expect.anything());
   const second = inlineRefs(card(href), () => {});
-  expect(second).toContain('<span class="ref-title">Fix the thing</span><span class="ref-head">');
-  expect(second).toContain('<span class="ref-kind">Pull request</span><span class="ref-author">jay</span><span class="ref-date">6 Jan 2026, 10:00</span></span><span class="ref-state" data-state="merged">Merged</span>');
+  expect(second).toContain('<span class="ref-state" data-state="merged">Merged</span></span><span class="ref-title">Fix the thing</span>');
+  expect(second).toContain('<span class="ref-meta"><span class="ref-kind">Pull request</span><span class="ref-author">jay</span><span class="ref-date">6 Jan 2026, 10:00</span></span>');
   expect(second).not.toContain("comment");
   expect(second).toContain('title="Fix the thing"');
   expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -46,7 +46,7 @@ it("maps GitLab fields", async () => {
   await new Promise<void>((r) => inlineRefs(card(href), r));
   const out = inlineRefs(card(href), () => {});
   expect(out).toContain('data-state="open">Open</span>');
-  expect(out).toContain('<span class="ref-author">ana</span></span><span class="ref-state" data-state="open">Open</span>');
+  expect(out).toContain('<span class="ref-kind">Merge request</span><span class="ref-author">ana</span></span>');
   expect(out).not.toContain("ref-date");
   expect(out).not.toContain("comment");
 });

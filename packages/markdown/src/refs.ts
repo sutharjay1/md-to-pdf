@@ -34,11 +34,12 @@ export function refKindLabel(ref: Ref): string {
   return ref.kind === "issue" ? "Issue" : ref.kind === "pr" ? "Pull request" : "Merge request";
 }
 
-/** The card as the renderer emits it: the source line. The browser adds the state, title, author, date and comments once the API answers. */
+/** The card as the renderer emits it: the source line and the kind. The browser adds the state, title, author and date once the API answers. */
 export function refHtml(ref: Ref, href: string): string {
   const provider = ref.provider === "github" ? "GitHub" : "GitLab";
   return (
     `<a class="ref" data-provider="${ref.provider}" data-kind="${ref.kind}" href="${escapeHtml(href)}" target="_blank" rel="noopener">` +
-    `<span class="ref-head"><span class="ref-source"><span class="ref-provider">${provider}</span><span class="ref-repo">${escapeHtml(refLabel(ref))}</span><span class="ref-kind">${refKindLabel(ref)}</span></span></span></a>`
+    `<span class="ref-head"><span class="ref-source"><span class="ref-provider">${provider}</span><span class="ref-repo">${escapeHtml(refLabel(ref))}</span></span></span>` +
+    `<span class="ref-meta"><span class="ref-kind">${refKindLabel(ref)}</span></span></a>`
   );
 }

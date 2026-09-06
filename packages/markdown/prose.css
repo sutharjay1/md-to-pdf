@@ -49,17 +49,22 @@
 .doc figcaption { font-size: 0.85em; color: var(--muted-foreground, #737373); margin-top: 0.4em; }
 .doc .video-placeholder { display: none; }
 .doc .footnotes { font-size: 0.85em; color: var(--muted-foreground, #737373); margin-top: 2em; }
-.doc a.ref { display: flex; flex-direction: column; gap: 0.45em; margin: 0 0 1em; padding: 0.95em 1.1em; border: 1px solid var(--border, #e5e5e5); border-radius: 10px; text-decoration: none; color: inherit; line-height: 1.45; transition: border-color var(--dur-fast, 100ms) ease-out; }
+.doc a.ref { display: flex; flex-direction: column; gap: 0.4em; margin: 0 0 1em; padding: 0.9em 1.05em; border: 1px solid var(--border, #e5e5e5); border-radius: 10px; text-decoration: none; color: inherit; line-height: 1.45; transition: border-color var(--dur-fast, 100ms) ease-out; }
 .doc a.ref:hover { border-color: var(--muted-foreground, #737373); }
 .doc p > a.ref { margin: 0.35em 0; }
-.doc a.ref .ref-title { font-size: 1em; font-weight: 500; line-height: 1.35; color: var(--foreground, #171717); overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
-.doc a.ref .ref-head { display: flex; align-items: baseline; gap: 0.35em 0.9em; font-size: 0.8em; color: var(--muted-foreground, #737373); }
-.doc a.ref .ref-source, .doc a.ref .ref-side { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2em 0.5em; min-width: 0; }
-.doc a.ref .ref-head span { white-space: nowrap; }
-.doc a.ref .ref-source > span + span::before, .doc a.ref .ref-side > span + span::before { content: "·"; margin-right: 0.5em; color: var(--border, #e5e5e5); }
-.doc a.ref .ref-repo { font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+/* Three left-aligned rows: source and state, then the title, then who and when. Each meta row stays on one line. */
+.doc a.ref .ref-head, .doc a.ref .ref-meta { display: flex; align-items: baseline; gap: 0.5em; min-width: 0; font-size: 0.8em; color: var(--muted-foreground, #737373); }
+.doc a.ref .ref-source { display: flex; align-items: baseline; gap: 0.5em; min-width: 0; }
+.doc a.ref .ref-head span, .doc a.ref .ref-meta span { white-space: nowrap; }
+.doc a.ref .ref-source > span + span::before, .doc a.ref .ref-meta > span + span::before { content: "\00b7"; margin-right: 0.5em; opacity: 0.55; }
+.doc a.ref .ref-provider, .doc a.ref .ref-kind { flex: none; }
 .doc a.ref .ref-provider { font-weight: 600; color: var(--foreground, #171717); }
-.doc a.ref .ref-state { flex: none; margin-left: auto; font-weight: 600; color: #737373; }
+.doc a.ref .ref-repo, .doc a.ref .ref-author { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.doc a.ref .ref-repo { font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+.doc a.ref .ref-date { flex: none; margin-left: auto; padding-left: 1em; }
+.doc a.ref .ref-date::before { content: none; }
+.doc a.ref .ref-title { font-size: 1em; font-weight: 500; line-height: 1.35; color: var(--foreground, #171717); overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.doc a.ref .ref-state { flex: none; margin-left: auto; padding-left: 0.5em; font-weight: 600; color: #737373; }
 .doc a.ref .ref-state::before { content: ""; display: inline-block; width: 0.5em; height: 0.5em; margin-right: 0.5em; border-radius: 50%; background: currentColor; vertical-align: 0.1em; }
 .doc a.ref .ref-state[data-state="draft"] { color: #57606a; }
 .dark .doc a.ref .ref-state[data-state="draft"] { color: #9ea7b3; }
@@ -125,8 +130,12 @@
   .doc kbd { border-color: #e5e5e5; background: #f5f5f5; }
   .doc a.ref { border-color: #e5e5e5; break-inside: avoid; }
   .doc a.ref .ref-provider, .doc a.ref .ref-title { color: #171717; }
-  .doc a.ref .ref-head { color: #737373; }
+  .doc a.ref .ref-head, .doc a.ref .ref-meta { color: #737373; }
   .doc a.ref .ref-title { -webkit-line-clamp: none; display: block; overflow: visible; }
+  /* Paper has no hover and no tooltip: wrap a long path, and drop the date to its own line, rather than clipping either. */
+  .doc a.ref .ref-source, .doc a.ref .ref-meta { flex-wrap: wrap; }
+  .doc a.ref .ref-repo { overflow: visible; white-space: normal; overflow-wrap: anywhere; }
+  .doc a.ref .ref-author { overflow: visible; }
   .doc a.ref .ref-state { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .doc a.ref .ref-state[data-state="draft"] { color: #57606a; }
   .doc thead { display: table-header-group; }
