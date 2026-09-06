@@ -118,3 +118,8 @@ Everything above loads lazily, only for documents that use it.
 ## Copy
 
 All user-facing strings live in `apps/web/src/copy.ts`.
+
+## Design
+
+[DESIGN.md](DESIGN.md) covers the colour tokens, button and menu sizing, the hit-area
+utilities, and the two-engine scrollbar styling.
