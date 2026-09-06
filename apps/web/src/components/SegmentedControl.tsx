@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@md-to-pdf/ui/components/tabs";
 
-export type View = "write" | "preview" | "html";
+export type View = "write" | "preview";
 
 type Option = { value: View; label: string };
 
@@ -26,7 +26,7 @@ export function SegmentedControl({ value, onChange, options }: Props) {
     <Tabs value={value} onValueChange={(v) => onChange(v as View)}>
       <TabsList
         ref={listRef}
-        className="relative h-7 self-center gap-0.5 bg-transparent p-0 group-data-[orientation=horizontal]/tabs:h-7"
+        className="relative self-center gap-0.5 bg-transparent p-0 group-data-[orientation=horizontal]/tabs:h-7"
       >
         <span
           aria-hidden

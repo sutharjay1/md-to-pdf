@@ -4,14 +4,23 @@ import markedFootnote from "marked-footnote";
 import { gfmHeadingId } from "marked-gfm-heading-id";
 import { frontMatterHtml, splitFrontMatter } from "./frontmatter";
 import { escapeHtml, highlightCode } from "./highlight";
+import { embedHtml } from "./embeds";
 import { classifyRef, refHtml } from "./refs";
 import { videoExtension } from "./video";
+
+/**
+ * How bare links render. `refs` covers GitHub and GitLab issues and pull requests, which have a card of their
+ * own; `links` covers every other bare URL, which can only be as rich as the page's own metadata.
+ */
+export type RenderOptions = { refs?: "card" | "link"; links?: "card" | "link" };
+
+const DEFAULTS = { refs: "card", links: "link" } as const;
 
 const HAS_MATH = /\$/;
 const HAS_EMOJI = /:[a-z0-9_+-]+:/;
 const HAS_ALERT = /^\s{0,3}>\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]/im;
 
-function baseExtensions(): MarkedExtension[] {
+function baseExtensions(opts: Required<RenderOptions>): MarkedExtension[] {
   return [
     markedHighlight({
       async: true,
@@ -31,8 +40,14 @@ function baseExtensions(): MarkedExtension[] {
         },
         link({ href, title, tokens }) {
           const bare = tokens.length === 1 && tokens[0].type === "text" && tokens[0].text === href;
-          const ref = bare ? classifyRef(href) : null;
-          if (ref) return refHtml(ref, href);
+          if (bare) {
+            const ref = classifyRef(href);
+            if (ref && opts.refs === "card") return refHtml(ref, href);
+            if (!ref && opts.links === "card") {
+              const card = embedHtml(href);
+              if (card) return card;
+            }
+          }
           const text = this.parser.parseInline(tokens);
           const external = /^https?:\/\//i.test(href);
           const attrs = [`href="${escapeHtml(href)}"`, title ? `title="${escapeHtml(title)}"` : "", external ? 'target="_blank" rel="noopener"' : ""]
@@ -65,21 +80,21 @@ async function optionalExtensions(math: boolean, emoji: boolean, alert: boolean)
 
 const instances = new Map<string, Promise<Marked>>();
 
-function instanceFor(markdown: string): Promise<Marked> {
+function instanceFor(markdown: string, opts: Required<RenderOptions>): Promise<Marked> {
   const math = HAS_MATH.test(markdown);
   const emoji = HAS_EMOJI.test(markdown);
   const alert = HAS_ALERT.test(markdown);
-  const key = `${math}:${emoji}:${alert}`;
+  const key = `${math}:${emoji}:${alert}:${opts.refs}:${opts.links}`;
   let instance = instances.get(key);
   if (!instance) {
-    instance = optionalExtensions(math, emoji, alert).then((extra) => new Marked(...extra, ...baseExtensions()));
+    instance = optionalExtensions(math, emoji, alert).then((extra) => new Marked(...extra, ...baseExtensions(opts)));
     instances.set(key, instance);
   }
   return instance;
 }
 
-export async function render(markdown: string): Promise<string> {
+export async function render(markdown: string, options: RenderOptions = {}): Promise<string> {
   const { fields, body } = splitFrontMatter(markdown);
-  const marked = await instanceFor(body);
+  const marked = await instanceFor(body, { ...DEFAULTS, ...options });
   return frontMatterHtml(fields) + (await marked.parse(body, { async: true }));
 }

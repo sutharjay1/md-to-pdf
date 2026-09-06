@@ -10,11 +10,12 @@ export function PreviewView({ html }: Props) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    morphdom(el, `<div>${html}</div>`, { childrenOnly: true });
+    // Unchanged nodes are common between renders, and skipping them keeps big subtrees (drawn diagrams) untouched.
+    morphdom(el, `<div>${html}</div>`, { childrenOnly: true, onBeforeElUpdated: (from, to) => !from.isEqualNode(to) });
   }, [html]);
 
   if (!html.trim()) {
     return <p className="p-10 text-muted-foreground">{copy.previewEmpty}</p>;
   }
-  return <div ref={ref} className="doc mx-auto max-w-[72ch] px-10 py-10" />;
+  return <div ref={ref} className="doc mx-auto max-w-[72ch] px-5 py-6 lg:px-10 lg:py-10" />;
 }

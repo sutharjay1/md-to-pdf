@@ -5,9 +5,9 @@ import welcome from "@/welcome.md?raw";
 export function useDocument() {
   const [doc, setDoc] = useState(() => loadDoc() ?? welcome);
   const latest = useRef(doc);
-  latest.current = doc;
 
   useEffect(() => {
+    latest.current = doc;
     const timer = setTimeout(() => saveDoc(doc), 300);
     return () => clearTimeout(timer);
   }, [doc]);

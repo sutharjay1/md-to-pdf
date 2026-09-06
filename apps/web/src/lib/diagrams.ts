@@ -39,17 +39,36 @@ async function draw(mermaid: Mermaid, code: string): Promise<string> {
   return out;
 }
 
-/** Replaces the renderer's mermaid blocks with inline SVG, so Preview, HTML and the PDF all carry the drawn diagram. */
+const BLOCK = /<pre class="mermaid">([\s\S]*?)<\/pre>/g;
+
+/** The renderer escapes the diagram source on its way into the html; mermaid wants it back as written. */
+function unescape(text: string): string {
+  return text.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&");
+}
+
+/**
+ * Replaces the renderer's mermaid blocks with inline SVG, so Preview, HTML and the PDF all carry the drawn
+ * diagram. Works on the html string: parsing the whole document on every keystroke is what made typing lag.
+ */
 export async function inlineDiagrams(html: string): Promise<string> {
-  if (!html.includes('class="mermaid"')) return html;
-  const doc = new DOMParser().parseFromString(html, "text/html");
-  const blocks = [...doc.querySelectorAll("pre.mermaid")];
+  if (!html.includes('<pre class="mermaid">')) return html;
+  const blocks = [...html.matchAll(BLOCK)];
   if (!blocks.length) return html;
   lib ??= load();
   const mermaid = await lib;
-  for (const pre of blocks) {
-    const drawn = doc.createRange().createContextualFragment(await draw(mermaid, pre.textContent ?? ""));
-    pre.replaceWith(drawn);
+  let out = "";
+  let at = 0;
+  // Sequential on purpose: mermaid lays each diagram out in the live DOM, and drawing 21 of them with
+  // Promise.all measured 3.3-4.6s against 0.58s one at a time.
+  for (const block of blocks) {
+    out += html.slice(at, block.index) + (await draw(mermaid, unescape(block[1])));
+    at = block.index + block[0].length;
   }
-  return doc.body.innerHTML;
+  return out + html.slice(at);
+}
+
+/** True when a diagram still has to be drawn, which takes long enough that the text should be shown first. */
+export function diagramsPending(html: string): boolean {
+  if (!html.includes('<pre class="mermaid">')) return false;
+  return [...html.matchAll(BLOCK)].some((block) => !cache.has(unescape(block[1])));
 }

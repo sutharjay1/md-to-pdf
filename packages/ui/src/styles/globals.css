@@ -88,6 +88,25 @@
 
 @layer base {
   * { border-color: var(--color-border); }
+  /* Chrome and Safari: a slim bar whose thumb thickens under the pointer, so it is easier to grab.
+     Setting scrollbar-width here would switch Chrome to the standard scrollbar and ignore these rules. */
+  @supports selector(::-webkit-scrollbar) {
+    /* The gutter is a fixed 10px so the text never reflows; only the thumb inside it thickens,
+       and only while the pointer is on the bar itself. */
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: var(--muted-foreground);
+      background-clip: padding-box;
+      border: 3px solid transparent;
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover, ::-webkit-scrollbar-thumb:active { border-width: 1px; }
+  }
+  /* Firefox has no per-pixel control, so it keeps the thin bar in the same colour. */
+  @supports not selector(::-webkit-scrollbar) {
+    * { scrollbar-width: thin; scrollbar-color: var(--muted-foreground) transparent; }
+  }
   html { color-scheme: light; }
   html.dark { color-scheme: dark; }
   body {

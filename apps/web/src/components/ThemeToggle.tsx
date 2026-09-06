@@ -14,7 +14,6 @@ export function ThemeToggle({ theme, onToggle }: Props) {
         <Button
           variant="ghost"
           size="icon"
-          className="size-8 active:scale-[0.97] transition-transform duration-(--dur-fast)"
           onClick={onToggle}
           aria-label={label}
         >

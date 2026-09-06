@@ -89,3 +89,25 @@ it("turns bare issue and PR links into reference cards and leaves titled links a
   expect(html).toContain('<a class="ref" data-provider="gitlab" data-kind="mr"');
   expect(html).toContain('<a href="https://github.com/o/r/pull/3" target="_blank" rel="noopener">the fix</a>');
 });
+
+it("bare links follow the render options", async () => {
+  const gh = "https://github.com/o/r/pull/1";
+  const other = "https://example.com/post";
+
+  const defaults = await render(`${gh}\n\n${other}`);
+  expect(defaults).toContain('class="ref"');
+  expect(defaults).toContain(`<a href="${other}" target="_blank" rel="noopener">${other}</a>`);
+
+  const plain = await render(gh, { refs: "link" });
+  expect(plain).not.toContain('class="ref"');
+  expect(plain).toContain(`<a href="${gh}"`);
+
+  const cards = await render(other, { links: "card" });
+  expect(cards).toContain('<a class="embed" data-host="example.com"');
+  expect(cards).toContain('<span class="embed-url">https://example.com/post</span>');
+});
+
+it("only bare links become cards, and only http(s) ones", async () => {
+  expect(await render("[docs](https://example.com/post)", { links: "card" })).not.toContain("embed");
+  expect(await render("mailto:a@b.test", { links: "card" })).not.toContain("embed");
+});

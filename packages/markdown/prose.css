@@ -74,6 +74,22 @@
 .dark .doc a.ref .ref-state[data-state="open"] { color: #3fb950; }
 .dark .doc a.ref .ref-state[data-state="merged"] { color: #ab7df8; }
 .dark .doc a.ref .ref-state[data-state="closed"] { color: #f85149; }
+/* Link preview: the page's own words on the left, its image holding the right third. */
+.doc a.embed { container-type: inline-size; display: flex; align-items: stretch; margin: 0 0 1em; border: 1px solid var(--border, #e5e5e5); border-radius: 10px; overflow: hidden; text-decoration: none; color: inherit; line-height: 1.45; transition: border-color var(--dur-fast, 100ms) ease-out; }
+.doc a.embed:hover { border-color: var(--muted-foreground, #737373); }
+.doc p > a.embed { margin: 0.35em 0; }
+.doc a.embed .embed-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.3em; padding: 0.9em 1.05em; }
+.doc a.embed .embed-title { font-size: 1em; font-weight: 500; line-height: 1.35; color: var(--foreground, #171717); overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.doc a.embed .embed-description { font-size: 0.85em; color: var(--muted-foreground, #737373); overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.doc a.embed .embed-url { margin-top: auto; padding-top: 0.15em; font-size: 0.8em; color: var(--muted-foreground, #737373); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* The image fills its column and never dictates the card height: that belongs to the words. */
+.doc a.embed .embed-thumb { position: relative; flex: none; width: 30%; align-self: stretch; overflow: hidden; background: var(--muted, #f5f5f5); border-left: 1px solid var(--border, #e5e5e5); }
+.doc a.embed .embed-thumb img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 0; }
+/* A narrow card is the phone case: the image keeps its third of the width and squares off. */
+@container (max-width: 420px) {
+  .doc a.embed .embed-thumb { align-self: flex-start; aspect-ratio: 1; }
+  .doc a.embed .embed-body { padding: 0.8em 0.9em; }
+}
 .doc figure.diagram { margin: 0 0 1em; text-align: center; overflow-x: auto; }
 .doc figure.diagram svg { max-width: 100%; height: auto; }
 .doc pre.mermaid-error::before { content: attr(data-error); display: block; font-family: inherit; color: #cf222e; margin-bottom: 0.5em; }
@@ -136,6 +152,11 @@
   .doc a.ref .ref-source, .doc a.ref .ref-meta { flex-wrap: wrap; }
   .doc a.ref .ref-repo { overflow: visible; white-space: normal; overflow-wrap: anywhere; }
   .doc a.ref .ref-author { overflow: visible; }
+  .doc a.embed { border-color: #e5e5e5; break-inside: avoid; }
+  .doc a.embed .embed-title { color: #171717; -webkit-line-clamp: none; display: block; overflow: visible; }
+  .doc a.embed .embed-description, .doc a.embed .embed-url { color: #737373; }
+  .doc a.embed .embed-url { white-space: normal; overflow: visible; overflow-wrap: anywhere; }
+  .doc a.embed .embed-thumb { border-left-color: #e5e5e5; background: #f5f5f5; }
   .doc a.ref .ref-state { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .doc a.ref .ref-state[data-state="draft"] { color: #57606a; }
   .doc thead { display: table-header-group; }

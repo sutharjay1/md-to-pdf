@@ -7,6 +7,10 @@ const ALIASES: Record<string, string> = {
 
 let instance: Promise<Hljs> | null = null;
 
+/** Every keystroke re-renders the document, and the code in it rarely changes; highlight each block once. */
+const highlighted = new Map<string, string>();
+const MAX_CACHE = 400;
+
 async function load(): Promise<Hljs> {
   const [{ default: hljs }, ...langs] = await Promise.all([
     import("highlight.js/lib/core"),
@@ -30,11 +34,16 @@ async function load(): Promise<Hljs> {
 }
 
 export async function highlightCode(code: string, lang: string): Promise<string> {
+  const key = `${lang}\u0000${code}`;
+  const hit = highlighted.get(key);
+  if (hit !== undefined) return hit;
   instance ??= load();
   const hljs = await instance;
   const language = ALIASES[lang] ?? lang;
-  if (!hljs.getLanguage(language)) return escapeHtml(code);
-  return hljs.highlight(code, { language }).value;
+  const out = hljs.getLanguage(language) ? hljs.highlight(code, { language }).value : escapeHtml(code);
+  if (highlighted.size >= MAX_CACHE) highlighted.delete(highlighted.keys().next().value as string);
+  highlighted.set(key, out);
+  return out;
 }
 
 export function escapeHtml(s: string): string {

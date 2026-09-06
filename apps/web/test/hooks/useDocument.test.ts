@@ -1,5 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { useDocument } from "@/hooks/useDocument";
+import welcome from "@/welcome.md?raw";
 
 beforeEach(() => {
   localStorage.clear();
@@ -9,7 +10,7 @@ afterEach(() => vi.useRealTimers());
 
 it("loads the welcome doc on first visit", () => {
   const { result } = renderHook(() => useDocument());
-  expect(result.current.doc).toContain("# Write on the left");
+  expect(result.current.doc).toBe(welcome);
 });
 
 it("loads the stored doc and autosaves after 300ms", () => {

@@ -22,9 +22,10 @@ test("renders the wordmark", () => {
   expect(screen.getByText("MD to PDF")).toBeInTheDocument();
 });
 
-test("no PDF tab is shown", () => {
+test("offers Write and Preview, and nothing else", () => {
   render(<App />);
-  expect(screen.getAllByRole("tab", { name: copy.tabs.html }).length).toBeGreaterThan(0);
+  expect(screen.getAllByRole("tab", { name: copy.tabs.preview }).length).toBeGreaterThan(0);
+  expect(screen.queryByRole("tab", { name: "HTML" })).not.toBeInTheDocument();
   expect(screen.queryByRole("tab", { name: "PDF" })).not.toBeInTheDocument();
 });
 

@@ -5,11 +5,11 @@ import { Pane } from "@/components/Pane";
 import { copy } from "@/copy";
 import { wordCount } from "@md-to-pdf/markdown";
 
-type Props = { doc: string; onChange: (doc: string) => void; className?: string };
+type Props = { doc: string; onChange: (doc: string) => void; className?: string; textRef?: React.Ref<HTMLTextAreaElement> };
 
 const ACCEPT = /\.(md|mdx|markdown|txt)$/i;
 
-export function EditorPane({ doc, onChange, className }: Props) {
+export function EditorPane({ doc, onChange, className, textRef }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const leaveOnTab = useRef(false);
 
@@ -69,6 +69,7 @@ export function EditorPane({ doc, onChange, className }: Props) {
         {copy.editorTabHint}
       </p>
       <textarea
+        ref={textRef}
         id="editor"
         aria-describedby="editor-tab-hint"
         value={doc}

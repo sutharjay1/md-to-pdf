@@ -1,3 +1,4 @@
+import { handleOg } from "./og";
 import { handlePdf, type Env } from "./pdf";
 
 export default {
@@ -7,6 +8,7 @@ export default {
       if (request.method !== "POST") return new Response("Method not allowed", { status: 405 });
       return handlePdf(request, env);
     }
+    if (url.pathname === "/api/og") return handleOg(request);
     return env.ASSETS.fetch(request);
   },
 } satisfies ExportedHandler<Env>;
