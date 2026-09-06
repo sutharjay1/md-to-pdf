@@ -71,10 +71,10 @@
 .doc pre.mermaid-error::before { content: attr(data-error); display: block; font-family: inherit; color: #cf222e; margin-bottom: 0.5em; }
 .doc math { font-size: 1.05em; }
 .doc math[display="block"] { display: block; margin: 1em 0; }
-.doc .markdown-alert { --alert: var(--muted-foreground, #737373); position: relative; border: 1px solid var(--border, #e5e5e5); border-radius: 10px; background: var(--muted, #f5f5f5); padding: 0.7em 1em 0.7em 1.7em; margin: 0 0 1em; }
-.doc .markdown-alert::before { content: ""; position: absolute; left: 0.65em; top: 0.75em; bottom: 0.75em; width: 4px; border-radius: 999px; background: var(--alert); }
+.doc .markdown-alert { --alert: var(--muted-foreground, #737373); position: relative; border: 1px solid var(--border, #e5e5e5); border-radius: 10px; background: var(--muted, #f5f5f5); padding: 0.45em 1em 0.45em 1.7em; margin: 0 0 1em; }
+.doc .markdown-alert::before { content: ""; position: absolute; left: 0.65em; top: 0.55em; bottom: 0.55em; width: 4px; border-radius: 999px; background: var(--alert); }
 .doc .markdown-alert > :last-child { margin-bottom: 0; }
-.doc .markdown-alert-title { display: flex; align-items: center; gap: 0.5em; font-weight: 600; color: var(--alert); margin-bottom: 0.3em; }
+.doc .markdown-alert-title { display: flex; align-items: center; gap: 0.5em; font-weight: 600; color: var(--alert); margin-bottom: 0.15em; }
 .doc .markdown-alert-title svg { width: 1em; height: 1em; fill: currentColor; flex: none; }
 .doc .markdown-alert-note { --alert: #0969da; }
 .doc .markdown-alert-tip { --alert: #1a7f37; }
