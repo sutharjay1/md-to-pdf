@@ -13,6 +13,7 @@ export const copy = {
   pageSizes: { A4: "A4", Letter: "Letter" },
   pageSize: "Page size",
   settings: "Settings",
+  xHandle: "sutharjay0",
   panes: "Panes",
   syncScroll: "Sync scrolling",
   refStyle: "GitHub and GitLab links",

@@ -1,6 +1,7 @@
 import { Download } from "lucide-react";
 import { Button } from "@md-to-pdf/ui/components/button";
 import { Logo } from "@/components/Logo";
+import { XLink } from "@/components/XLink";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { copy } from "@/copy";
 
@@ -11,15 +12,23 @@ type Props = {
   children?: React.ReactNode; // theme toggle and settings slot
 };
 
-export function AppBar({ onDownload, downloadDisabled, downloadLabel, children }: Props) {
+export function AppBar({
+  onDownload,
+  downloadDisabled,
+  downloadLabel,
+  children,
+}: Props) {
   const isMobile = useIsMobile();
 
   return (
     <header className="h-11 shrink-0 flex items-center justify-between px-4 border-b">
-      <span className="flex items-center gap-2 font-medium">
-        <Logo />
-        {copy.wordmark}
-      </span>
+      <div className="flex items-center gap-2 ">
+        <span className="flex items-center gap-2 font-medium">
+          <Logo />
+          {copy.wordmark}
+        </span>
+        <XLink />
+      </div>
       <div className="flex items-center gap-1">
         {children}
         <Button
