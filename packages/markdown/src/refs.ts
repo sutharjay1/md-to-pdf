@@ -30,10 +30,17 @@ export function refLabel(ref: Ref): string {
   return `${ref.path}${ref.kind === "mr" ? "!" : "#"}${ref.number}`;
 }
 
+export function refKindLabel(ref: Ref): string {
+  return ref.kind === "issue" ? "Issue" : ref.kind === "pr" ? "Pull request" : "Merge request";
+}
+
+/** The card as the renderer emits it: header and kind. The browser adds the title and the state once the API answers. */
 export function refHtml(ref: Ref, href: string): string {
   const provider = ref.provider === "github" ? "GitHub" : "GitLab";
+  const number = `${ref.kind === "mr" ? "!" : "#"}${ref.number}`;
   return (
     `<a class="ref" data-provider="${ref.provider}" data-kind="${ref.kind}" href="${escapeHtml(href)}" target="_blank" rel="noopener">` +
-    `<span class="ref-provider">${provider}</span><span class="ref-id">${escapeHtml(refLabel(ref))}</span></a>`
+    `<span class="ref-head"><span class="ref-provider">${provider}</span><span class="ref-repo">${escapeHtml(ref.path)}</span><span class="ref-number">${number}</span></span>` +
+    `<span class="ref-meta"><span class="ref-kind">${refKindLabel(ref)}</span></span></a>`
   );
 }

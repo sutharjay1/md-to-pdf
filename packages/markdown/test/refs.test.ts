@@ -22,5 +22,6 @@ it("labels and renders a card", () => {
   expect(refLabel(ref)).toBe("g/p!9");
   const html = refHtml(ref, "https://gitlab.com/g/p/-/merge_requests/9");
   expect(html).toContain('class="ref" data-provider="gitlab" data-kind="mr"');
-  expect(html).toContain('<span class="ref-provider">GitLab</span><span class="ref-id">g/p!9</span>');
+  expect(html).toContain('<span class="ref-head"><span class="ref-provider">GitLab</span><span class="ref-repo">g/p</span><span class="ref-number">!9</span></span>');
+  expect(html).toContain('<span class="ref-meta"><span class="ref-kind">Merge request</span></span>');
 });

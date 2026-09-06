@@ -1,3 +1,4 @@
+import { classifyRef, refHtml } from "@md-to-pdf/markdown";
 import { inlineRefs, resetRefCache } from "@/lib/refs";
 
 const fetchMock = vi.fn();
@@ -7,7 +8,7 @@ beforeEach(() => {
   vi.stubGlobal("fetch", fetchMock);
 });
 
-const card = (href: string) => `<p><a class="ref" data-provider="github" data-kind="issue" href="${href}"><span class="ref-provider">GitHub</span><span class="ref-id">o/r#1</span></a></p>`;
+const card = (href: string) => `<p>${refHtml(classifyRef(href)!, href)}</p>`;
 
 it("returns html without cards untouched and never fetches", () => {
   const onUpdate = vi.fn();
@@ -16,21 +17,35 @@ it("returns html without cards untouched and never fetches", () => {
   expect(onUpdate).not.toHaveBeenCalled();
 });
 
-it("fetches once, calls onUpdate, then fills the card from cache", async () => {
-  fetchMock.mockResolvedValue({ ok: true, json: async () => ({ title: "Fix the thing", state: "closed", pull_request: { merged_at: "2026-01-01" } }) });
+it("fetches once, calls onUpdate, then fills title, state and meta from cache", async () => {
+  fetchMock.mockResolvedValue({
+    ok: true,
+    json: async () => ({ title: "Fix the thing", state: "closed", pull_request: { merged_at: "2026-01-01" }, user: { login: "jay" }, created_at: "2026-01-06T10:00:00Z", comments: 3 }),
+  });
   const href = "https://github.com/o/r/pull/1";
   let resolveUpdate!: () => void;
   const updated = new Promise<void>((r) => (resolveUpdate = r));
   const first = inlineRefs(card(href), resolveUpdate);
   expect(first).not.toContain("ref-title");
+  expect(first).toContain('<span class="ref-kind">Pull request</span>');
   await updated;
   expect(fetchMock).toHaveBeenCalledTimes(1);
   expect(fetchMock).toHaveBeenCalledWith("https://api.github.com/repos/o/r/issues/1", expect.anything());
   const second = inlineRefs(card(href), () => {});
-  expect(second).toContain('<span class="ref-title">Fix the thing</span>');
-  expect(second).toContain('<span class="ref-state" data-state="merged">Merged</span>');
+  expect(second).toContain('<span class="ref-title">Fix the thing</span><span class="ref-meta">');
+  expect(second).toContain('<span class="ref-meta"><span class="ref-state" data-state="merged">Merged</span><span class="ref-kind">Pull request</span><span class="ref-author">jay</span><span class="ref-date">6 Jan 2026</span><span class="ref-comments">3 comments</span></span>');
   expect(second).toContain('title="Fix the thing"');
   expect(fetchMock).toHaveBeenCalledTimes(1);
+});
+
+it("maps GitLab fields and singular comment", async () => {
+  fetchMock.mockResolvedValue({ ok: true, json: async () => ({ title: "MR", state: "opened", author: { username: "ana" }, user_notes_count: 1 }) });
+  const href = "https://gitlab.com/g/p/-/merge_requests/2";
+  await new Promise<void>((r) => inlineRefs(card(href), r));
+  const out = inlineRefs(card(href), () => {});
+  expect(out).toContain('data-state="open">Open</span>');
+  expect(out).toContain('<span class="ref-author">ana</span><span class="ref-comments">1 comment</span>');
+  expect(out).not.toContain("ref-date");
 });
 
 it("keeps the basic card when the API says no", async () => {
@@ -38,7 +53,7 @@ it("keeps the basic card when the API says no", async () => {
   const href = "https://github.com/o/private/issues/9";
   await new Promise<void>((r) => inlineRefs(card(href), r));
   const out = inlineRefs(card(href), () => {});
-  expect(out).toContain('class="ref-id"');
+  expect(out).toContain('<span class="ref-kind">Issue</span>');
   expect(out).not.toContain("ref-title");
   expect(out).not.toContain("ref-state");
 });

@@ -46,14 +46,24 @@
 .doc figcaption { font-size: 0.85em; color: var(--muted-foreground, #737373); margin-top: 0.4em; }
 .doc .video-placeholder { display: none; }
 .doc .footnotes { font-size: 0.85em; color: var(--muted-foreground, #737373); margin-top: 2em; }
-.doc a.ref { display: inline-flex; align-items: center; gap: 0.5em; max-width: 100%; padding: 0.25em 0.65em; border: 1px solid var(--border, #e5e5e5); border-radius: 6px; text-decoration: none; font-size: 0.9em; line-height: 1.4; vertical-align: middle; }
-.doc a.ref .ref-provider { font-size: 0.72em; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted-foreground, #737373); flex: none; }
-.doc a.ref .ref-id { font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85em; color: var(--muted-foreground, #737373); flex: none; }
-.doc a.ref .ref-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.doc a.ref .ref-state { flex: none; margin-left: auto; font-size: 0.72em; font-weight: 600; padding: 0.1em 0.55em; border-radius: 999px; color: #fff; background: #737373; }
-.doc a.ref .ref-state[data-state="open"] { background: #1a7f37; }
-.doc a.ref .ref-state[data-state="merged"] { background: #8250df; }
-.doc a.ref .ref-state[data-state="closed"] { background: #cf222e; }
+.doc a.ref { display: flex; flex-direction: column; gap: 0.4em; margin: 0 0 1em; padding: 0.9em 1.1em; border: 1px solid var(--border, #e5e5e5); border-radius: 10px; text-decoration: none; color: inherit; line-height: 1.45; transition: border-color var(--dur-fast, 100ms) ease-out; }
+.doc a.ref:hover { border-color: var(--muted-foreground, #737373); }
+.doc p > a.ref { margin: 0.35em 0; }
+.doc a.ref .ref-head { display: flex; align-items: baseline; gap: 0.6em; font-size: 0.8em; color: var(--muted-foreground, #737373); }
+.doc a.ref .ref-provider { font-weight: 600; color: var(--foreground, #171717); }
+.doc a.ref .ref-repo { font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.doc a.ref .ref-number { margin-left: auto; font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace; flex: none; }
+.doc a.ref .ref-title { font-size: 1em; font-weight: 500; color: var(--foreground, #171717); overflow-wrap: anywhere; }
+.doc a.ref .ref-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3em 0.55em; font-size: 0.8em; color: var(--muted-foreground, #737373); }
+.doc a.ref .ref-meta > span + span::before { content: "·"; margin-right: 0.55em; color: var(--border, #e5e5e5); }
+.doc a.ref .ref-state { font-weight: 600; color: #737373; }
+.doc a.ref .ref-state::before { content: ""; display: inline-block; width: 0.55em; height: 0.55em; margin-right: 0.45em; border-radius: 50%; background: currentColor; vertical-align: 0.05em; }
+.doc a.ref .ref-state[data-state="open"] { color: #1a7f37; }
+.doc a.ref .ref-state[data-state="merged"] { color: #8250df; }
+.doc a.ref .ref-state[data-state="closed"] { color: #cf222e; }
+.dark .doc a.ref .ref-state[data-state="open"] { color: #3fb950; }
+.dark .doc a.ref .ref-state[data-state="merged"] { color: #ab7df8; }
+.dark .doc a.ref .ref-state[data-state="closed"] { color: #f85149; }
 .doc figure.diagram { margin: 0 0 1em; text-align: center; overflow-x: auto; }
 .doc figure.diagram svg { max-width: 100%; height: auto; }
 .doc pre.mermaid-error::before { content: attr(data-error); display: block; font-family: inherit; color: #cf222e; margin-bottom: 0.5em; }
@@ -104,6 +114,8 @@
   .doc .markdown-alert { background: #f5f5f5; }
   .doc kbd { border-color: #e5e5e5; background: #f5f5f5; }
   .doc a.ref { border-color: #e5e5e5; break-inside: avoid; }
+  .doc a.ref .ref-provider, .doc a.ref .ref-title { color: #171717; }
+  .doc a.ref .ref-head, .doc a.ref .ref-meta { color: #737373; }
   .doc a.ref .ref-state { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .doc thead { display: table-header-group; }
   .doc pre { white-space: pre-wrap; word-break: break-word; background: #f5f5f5; }

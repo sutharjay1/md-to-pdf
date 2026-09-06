@@ -3,4 +3,4 @@ export { classifyVideo, videoHtml, videoExtension } from "./video";
 export { render } from "./render";
 export { highlightCode, escapeHtml } from "./highlight";
 export { splitFrontMatter, frontMatterHtml } from "./frontmatter";
-export { classifyRef, refLabel, refHtml, type Ref } from "./refs";
+export { classifyRef, refLabel, refKindLabel, refHtml, type Ref } from "./refs";

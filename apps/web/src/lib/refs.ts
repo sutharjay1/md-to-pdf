@@ -1,32 +1,66 @@
 import { classifyRef, type Ref } from "@md-to-pdf/markdown";
 
 export type RefState = "open" | "closed" | "merged";
-export type RefDetails = { title: string; state: RefState };
+export type RefDetails = { title: string; state: RefState; author?: string; createdAt?: string; comments?: number };
 
 const cache = new Map<string, RefDetails | null>();
 const pending = new Map<string, Promise<void>>();
 
+type Payload = {
+  title?: string;
+  state?: string;
+  pull_request?: { merged_at?: string | null };
+  user?: { login?: string };
+  author?: { username?: string };
+  created_at?: string;
+  comments?: number;
+  user_notes_count?: number;
+};
+
 async function lookup(ref: Ref): Promise<RefDetails | null> {
   const res = await fetch(ref.api, { headers: ref.provider === "github" ? { Accept: "application/vnd.github+json" } : {} });
   if (!res.ok) return null;
-  const json = (await res.json()) as { title?: string; state?: string; pull_request?: { merged_at?: string | null } };
+  const json = (await res.json()) as Payload;
   if (typeof json.title !== "string") return null;
   const state: RefState =
     json.pull_request?.merged_at || json.state === "merged" ? "merged" : json.state === "open" || json.state === "opened" ? "open" : "closed";
-  return { title: json.title, state };
+  return {
+    title: json.title,
+    state,
+    author: json.user?.login ?? json.author?.username,
+    createdAt: json.created_at,
+    comments: json.comments ?? json.user_notes_count,
+  };
+}
+
+function formatDate(iso: string): string {
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? "" : date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
 function fill(anchor: Element, details: RefDetails): void {
   const doc = anchor.ownerDocument;
-  const title = doc.createElement("span");
-  title.className = "ref-title";
-  title.textContent = details.title;
-  const state = doc.createElement("span");
-  state.className = "ref-state";
-  state.dataset.state = details.state;
-  state.textContent = details.state[0].toUpperCase() + details.state.slice(1);
-  anchor.append(title, state);
+  const span = (className: string, text: string) => {
+    const el = doc.createElement("span");
+    el.className = className;
+    el.textContent = text;
+    return el;
+  };
+  const meta = anchor.querySelector(".ref-meta");
+  const title = span("ref-title", details.title);
+  if (meta) anchor.insertBefore(title, meta);
+  else anchor.append(title);
   anchor.setAttribute("title", details.title);
+  if (!meta) return;
+  const state = span("ref-state", details.state[0].toUpperCase() + details.state.slice(1));
+  state.dataset.state = details.state;
+  meta.prepend(state);
+  if (details.author) meta.append(span("ref-author", details.author));
+  const date = details.createdAt ? formatDate(details.createdAt) : "";
+  if (date) meta.append(span("ref-date", date));
+  if (typeof details.comments === "number" && details.comments > 0) {
+    meta.append(span("ref-comments", `${details.comments} ${details.comments === 1 ? "comment" : "comments"}`));
+  }
 }
 
 /**
