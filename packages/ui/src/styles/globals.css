@@ -40,6 +40,10 @@
   --dur-fast: 100ms;
   --dur-base: 120ms;
   --dur-move: 160ms;
+  /* Firefox derives the thumb's hover and drag colours from this one and washes them toward the page, so it
+     starts with more contrast than the resting bar needs. Mixing toward the foreground darkens it in light
+     and brightens it in dark, which is the direction contrast wants in both. */
+  --scrollbar-thumb: color-mix(in oklch, var(--muted-foreground) 65%, var(--foreground));
 }
 
 .dark {
@@ -88,24 +92,31 @@
 
 @layer base {
   * { border-color: var(--color-border); }
-  /* Chrome and Safari: a slim bar whose thumb thickens under the pointer, so it is easier to grab.
-     Setting scrollbar-width here would switch Chrome to the standard scrollbar and ignore these rules. */
-  @supports selector(::-webkit-scrollbar) {
-    /* The gutter is a fixed 10px so the text never reflows; only the thumb inside it thickens,
-       and only while the pointer is on the bar itself. */
-    ::-webkit-scrollbar { width: 10px; height: 10px; }
+  /* Firefox, and anything else honouring the standard properties, gets the full-width bar rather than the
+     thin one: width is the only hit area it offers, and `thin` leaves too little to catch. The track is
+     transparent, so what that width reserves stays invisible and only the thumb shows. */
+  * { scrollbar-width: auto; scrollbar-color: var(--scrollbar-thumb) transparent; }
+  /* Chrome and Safari ignore ::-webkit-scrollbar as soon as scrollbar-width is set, so hand the job back to
+     the pseudo-elements there. Firefox answers true to every -webkit- feature query now, including
+     selector(::-webkit-scrollbar), and -moz-appearance is what still tells the two apart. */
+  @supports not (-moz-appearance: none) {
+    * { scrollbar-width: auto; scrollbar-color: auto; }
+    /* The bar reserves 14px and every pixel of it is the pointer target; the thumb is painted 4px inside
+       that by a transparent border it still owns for hit testing. Same idea as the hit-area utility, done
+       the one way a browser-drawn control allows: the target is wider than the paint, and the gutter never
+       changes width, so aiming at the bar costs the text nothing. */
+    ::-webkit-scrollbar { width: 14px; height: 14px; }
     ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
     ::-webkit-scrollbar-thumb {
       background: var(--muted-foreground);
       background-clip: padding-box;
-      border: 3px solid transparent;
+      border: 5px solid transparent;
       border-radius: 999px;
     }
-    ::-webkit-scrollbar-thumb:hover, ::-webkit-scrollbar-thumb:active { border-width: 1px; }
-  }
-  /* Firefox has no per-pixel control, so it keeps the thin bar in the same colour. */
-  @supports not selector(::-webkit-scrollbar) {
-    * { scrollbar-width: thin; scrollbar-color: var(--muted-foreground) transparent; }
+    /* A long document would otherwise shrink the thumb to a sliver no one can catch. */
+    ::-webkit-scrollbar-thumb:vertical { min-height: 44px; }
+    ::-webkit-scrollbar-thumb:horizontal { min-width: 44px; }
+    ::-webkit-scrollbar-thumb:hover, ::-webkit-scrollbar-thumb:active { border-width: 3px; }
   }
   html { color-scheme: light; }
   html.dark { color-scheme: dark; }
@@ -124,3 +135,182 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+
+
+/* ─── Liquid glass — frosted tinted surface (tokens: --liquid-glass-*) ─────
+   Theme-aware: light drop-shadow, dark inset rim. Specular lives on
+   background-image so this does not steal ::before from hit-area.
+   Use: className="liquid-glass rounded-full" */
+   @utility liquid-glass {
+    border: 1px solid var(--border);
+    background-color: var(--liquid-glass-bg);
+    background-image: var(--liquid-glass-highlight);
+    -webkit-backdrop-filter: blur(var(--liquid-glass-blur)) saturate(var(--liquid-glass-saturate));
+    backdrop-filter: blur(var(--liquid-glass-blur)) saturate(var(--liquid-glass-saturate));
+    box-shadow: var(--liquid-glass-shadow);
+  
+    &:hover {
+      background-color: var(--liquid-glass-bg-hover);
+    }
+  }
+  
+  /* ─── Hit area — expand interactive targets without layout shift ───────────
+     https://bazza.dev/craft/2026/hit-area */
+  @utility hit-area-debug {
+    position: relative;
+    &::before {
+      content: '';
+      position: absolute;
+      top: var(--hit-area-t, 0px);
+      right: var(--hit-area-r, 0px);
+      bottom: var(--hit-area-b, 0px);
+      left: var(--hit-area-l, 0px);
+      pointer-events: inherit;
+      @apply border border-dashed border-blue-500 bg-blue-500/10;
+    }
+    &:hover::before {
+      @apply border border-dashed border-green-500 bg-green-500/10;
+    }
+  }
+  
+  @utility hit-area {
+    position: relative;
+    &::before {
+      content: '';
+      position: absolute;
+      top: var(--hit-area-t, 0px);
+      right: var(--hit-area-r, 0px);
+      bottom: var(--hit-area-b, 0px);
+      left: var(--hit-area-l, 0px);
+      pointer-events: inherit;
+    }
+  }
+  
+  @utility hit-area-* {
+    position: relative;
+    --hit-area-t: --spacing(--value(number) * -1);
+    --hit-area-t: calc(--value([*]) * -1);
+    --hit-area-b: --spacing(--value(number) * -1);
+    --hit-area-b: calc(--value([*]) * -1);
+    --hit-area-l: --spacing(--value(number) * -1);
+    --hit-area-l: calc(--value([*]) * -1);
+    --hit-area-r: --spacing(--value(number) * -1);
+    --hit-area-r: calc(--value([*]) * -1);
+    &::before {
+      content: '';
+      position: absolute;
+      top: var(--hit-area-t, 0px);
+      right: var(--hit-area-r, 0px);
+      bottom: var(--hit-area-b, 0px);
+      left: var(--hit-area-l, 0px);
+      pointer-events: inherit;
+    }
+  }
+  
+  @utility hit-area-x-* {
+    position: relative;
+    --hit-area-l: --spacing(--value(number) * -1);
+    --hit-area-l: calc(--value([*]) * -1);
+    --hit-area-r: --spacing(--value(number) * -1);
+    --hit-area-r: calc(--value([*]) * -1);
+    &::before {
+      content: '';
+      position: absolute;
+      top: var(--hit-area-t, 0px);
+      right: var(--hit-area-r, 0px);
+      bottom: var(--hit-area-b, 0px);
+      left: var(--hit-area-l, 0px);
+      pointer-events: inherit;
+    }
+  }
+  
+  @utility hit-area-y-* {
+    position: relative;
+    --hit-area-t: --spacing(--value(number) * -1);
+    --hit-area-t: calc(--value([*]) * -1);
+    --hit-area-b: --spacing(--value(number) * -1);
+    --hit-area-b: calc(--value([*]) * -1);
+    &::before {
+      content: '';
+      position: absolute;
+      top: var(--hit-area-t, 0px);
+      right: var(--hit-area-r, 0px);
+      bottom: var(--hit-area-b, 0px);
+      left: var(--hit-area-l, 0px);
+      pointer-events: inherit;
+    }
+  }
+  
+  @utility hit-area-t-* {
+    position: relative;
+    --hit-area-t: --spacing(--value(number) * -1);
+    --hit-area-t: calc(--value([*]) * -1);
+    &::before {
+      content: '';
+      position: absolute;
+      top: var(--hit-area-t, 0px);
+      right: var(--hit-area-r, 0px);
+      bottom: var(--hit-area-b, 0px);
+      left: var(--hit-area-l, 0px);
+      pointer-events: inherit;
+    }
+  }
+  
+  @utility hit-area-r-* {
+    position: relative;
+    --hit-area-r: --spacing(--value(number) * -1);
+    --hit-area-r: calc(--value([*]) * -1);
+    &::before {
+      content: '';
+      position: absolute;
+      top: var(--hit-area-t, 0px);
+      right: var(--hit-area-r, 0px);
+      bottom: var(--hit-area-b, 0px);
+      left: var(--hit-area-l, 0px);
+      pointer-events: inherit;
+    }
+  }
+  
+  @utility hit-area-b-* {
+    position: relative;
+    --hit-area-b: --spacing(--value(number) * -1);
+    --hit-area-b: calc(--value([*]) * -1);
+    &::before {
+      content: '';
+      position: absolute;
+      top: var(--hit-area-t, 0px);
+      right: var(--hit-area-r, 0px);
+      bottom: var(--hit-area-b, 0px);
+      left: var(--hit-area-l, 0px);
+      pointer-events: inherit;
+    }
+  }
+  
+  @utility hit-area-l-* {
+    position: relative;
+    --hit-area-l: --spacing(--value(number) * -1);
+    --hit-area-l: calc(--value([*]) * -1);
+    &::before {
+      content: '';
+      position: absolute;
+      top: var(--hit-area-t, 0px);
+      right: var(--hit-area-r, 0px);
+      bottom: var(--hit-area-b, 0px);
+      left: var(--hit-area-l, 0px);
+      pointer-events: inherit;
+    }
+  }
+  
+  @utility font-kerning-none {
+    font-kerning: none;
+  }
+  
+  @utility font-kerning-normal {
+    font-kerning: normal;
+  }
+  
+  @utility font-kerning-auto {
+    font-kerning: auto;
+  }
+  
