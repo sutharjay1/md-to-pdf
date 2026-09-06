@@ -20,6 +20,14 @@ import { loadPrefs, savePrefs, type LinkStyle, type Page } from "@/lib/storage";
 const SAVE_KEY = "s";
 const THEME_KEY = "d";
 
+/** Where a letter is text the reader is typing, not a shortcut: the editor, a form field, an open menu. */
+function isTyping(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  if (target.isContentEditable) return true;
+  if (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return true;
+  return target.closest('[role="menu"], [role="dialog"], [role="listbox"]') !== null;
+}
+
 const mobileTabs: { value: View; label: string }[] = [
   { value: "write", label: copy.tabs.write },
   { value: "preview", label: copy.tabs.preview },
@@ -43,17 +51,17 @@ export default function App() {
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (!e.metaKey && !e.ctrlKey) return;
       const key = e.key.toLowerCase();
-      if (key === SAVE_KEY) {
+      if ((e.metaKey || e.ctrlKey) && key === SAVE_KEY) {
         e.preventDefault();
         if (pdf.status === "rendering") return;
         void pdf.download(filenameFrom(titleFrom(doc)));
+        return;
       }
-      if (key === THEME_KEY) {
-        e.preventDefault();
-        toggleTheme();
-      }
+      if (e.metaKey || e.ctrlKey || e.altKey || e.isComposing) return;
+      if (key !== THEME_KEY || isTyping(e.target)) return;
+      e.preventDefault();
+      toggleTheme();
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

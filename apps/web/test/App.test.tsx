@@ -57,17 +57,23 @@ it("shows a toast when the PDF request fails", async () => {
   await waitFor(() => expect(screen.getByText(copy.pdfError)).toBeInTheDocument());
 });
 
-it("toggles the theme with Cmd/Ctrl+D", () => {
+it("toggles the theme on a bare D, and leaves the letter alone while typing", () => {
   document.documentElement.classList.remove("dark");
   render(<App />);
 
-  fireEvent.keyDown(window, { key: "d", metaKey: true });
+  fireEvent.keyDown(window, { key: "d" });
   expect(document.documentElement.classList.contains("dark")).toBe(true);
   expect(localStorage.getItem("md2pdf:theme")).toBe("dark");
 
-  fireEvent.keyDown(window, { key: "D", ctrlKey: true });
+  fireEvent.keyDown(window, { key: "D" });
   expect(document.documentElement.classList.contains("dark")).toBe(false);
 
-  fireEvent.keyDown(window, { key: "d" }); // bare d belongs to the editor
+  // typing in the editor writes a d, it does not flip the theme
+  fireEvent.keyDown(screen.getByRole("textbox"), { key: "d" });
+  expect(document.documentElement.classList.contains("dark")).toBe(false);
+
+  // and the letter is not a shortcut when it is part of one
+  fireEvent.keyDown(window, { key: "d", metaKey: true });
+  fireEvent.keyDown(window, { key: "d", altKey: true });
   expect(document.documentElement.classList.contains("dark")).toBe(false);
 });
