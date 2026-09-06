@@ -1,7 +1,7 @@
 import { classifyRef, type Ref } from "@md-to-pdf/markdown";
 
 export type RefState = "open" | "closed" | "merged" | "draft";
-export type RefDetails = { title: string; state: RefState; author?: string; createdAt?: string; comments?: number };
+export type RefDetails = { title: string; state: RefState; author?: string; createdAt?: string };
 
 const cache = new Map<string, RefDetails | null>();
 const pending = new Map<string, Promise<void>>();
@@ -14,8 +14,6 @@ type Payload = {
   user?: { login?: string };
   author?: { username?: string };
   created_at?: string;
-  comments?: number;
-  user_notes_count?: number;
 };
 
 async function lookup(ref: Ref): Promise<RefDetails | null> {
@@ -26,18 +24,15 @@ async function lookup(ref: Ref): Promise<RefDetails | null> {
   const open = json.state === "open" || json.state === "opened";
   const state: RefState =
     json.pull_request?.merged_at || json.state === "merged" ? "merged" : open && json.draft ? "draft" : open ? "open" : "closed";
-  return {
-    title: json.title,
-    state,
-    author: json.user?.login ?? json.author?.username,
-    createdAt: json.created_at,
-    comments: json.comments ?? json.user_notes_count,
-  };
+  return { title: json.title, state, author: json.user?.login ?? json.author?.username, createdAt: json.created_at };
 }
 
-function formatDate(iso: string): string {
+function formatMoment(iso: string): string {
   const date = new Date(iso);
-  return Number.isNaN(date.getTime()) ? "" : date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  if (Number.isNaN(date.getTime())) return "";
+  const day = date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  const time = date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  return `${day}, ${time}`;
 }
 
 function fill(anchor: Element, details: RefDetails): void {
@@ -48,25 +43,17 @@ function fill(anchor: Element, details: RefDetails): void {
     el.textContent = text;
     return el;
   };
-  const main = span("ref-main", "");
-  main.append(span("ref-title", details.title));
-  anchor.prepend(main);
+  anchor.prepend(span("ref-title", details.title));
   anchor.setAttribute("title", details.title);
   const head = anchor.querySelector(".ref-head");
-  if (!head) return;
-  const side = span("ref-side", "");
-  if (details.author) side.append(span("ref-author", details.author));
-  const date = details.createdAt ? formatDate(details.createdAt) : "";
-  if (date) side.append(span("ref-date", date));
-  if (typeof details.comments === "number" && details.comments > 0) {
-    side.append(span("ref-comments", `${details.comments} ${details.comments === 1 ? "comment" : "comments"}`));
-  }
+  const source = anchor.querySelector(".ref-source");
+  if (!head || !source) return;
+  if (details.author) source.append(span("ref-author", details.author));
+  const moment = details.createdAt ? formatMoment(details.createdAt) : "";
+  if (moment) source.append(span("ref-date", moment));
   const state = span("ref-state", details.state[0].toUpperCase() + details.state.slice(1));
   state.dataset.state = details.state;
-  const end = span("ref-end", "");
-  if (side.childElementCount) end.append(side);
-  end.append(state);
-  head.append(end);
+  head.append(state);
 }
 
 /**
