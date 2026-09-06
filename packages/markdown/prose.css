@@ -53,7 +53,7 @@
 .doc a.ref:hover { border-color: var(--muted-foreground, #737373); }
 .doc p > a.ref { margin: 0.35em 0; }
 .doc a.ref .ref-title { font-size: 1em; font-weight: 500; color: var(--foreground, #171717); overflow-wrap: anywhere; }
-.doc a.ref .ref-head { display: flex; align-items: center; gap: 0.35em 1em; font-size: 0.8em; color: var(--muted-foreground, #737373); }
+.doc a.ref .ref-head { display: flex; align-items: baseline; gap: 0.35em 1em; font-size: 0.8em; color: var(--muted-foreground, #737373); }
 .doc a.ref .ref-source { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2em 0.5em; min-width: 0; }
 .doc a.ref .ref-source > span + span::before { content: "·"; margin-right: 0.5em; color: var(--border, #e5e5e5); }
 .doc a.ref .ref-provider { font-weight: 600; color: var(--foreground, #171717); }
