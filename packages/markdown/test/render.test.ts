@@ -77,8 +77,8 @@ it("replaces emoji shortcodes and leaves unknown ones alone", async () => {
 
 it("turns leading front matter into a table and drops it from the body", async () => {
   const html = await render("---\ntitle: Doc\ntags:\n  - a\n  - b\n---\n\n# Doc");
-  expect(html).toContain('<table class="frontmatter">');
-  expect(html).toContain("<td>a, b</td>");
+  expect(html).toContain('<dl class="frontmatter">');
+  expect(html).toContain('<dd><span class="fm-tag">a</span><span class="fm-tag">b</span></dd>');
   expect(html).toContain('<h1 id="doc">');
   expect(html).not.toContain("<hr>");
 });

@@ -8,7 +8,7 @@ function stripFences(markdown: string): string {
 
 export function titleFrom(markdown: string): string {
   const { fields, body } = splitFrontMatter(markdown);
-  const fromMeta = fields.find(([k]) => k === "title")?.[1];
+  const fromMeta = fields.find((f) => f.key === "title")?.value;
   if (fromMeta) return fromMeta;
   const lines = stripFences(body).split("\n");
   for (let i = 0; i < lines.length; i++) {

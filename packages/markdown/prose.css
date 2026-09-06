@@ -40,10 +40,11 @@
 .doc mark { background: #fde68a; color: #171717; padding: 0 0.15em; border-radius: 2px; }
 .doc details { border: 1px solid var(--border, #e5e5e5); border-radius: 6px; padding: 0.5em 1em; margin: 0 0 1em; }
 .doc summary { cursor: pointer; font-weight: 500; }
-.doc table.frontmatter { width: 100%; font-size: 0.85em; border: 1px solid var(--border, #e5e5e5); border-radius: 10px; border-collapse: separate; border-spacing: 0; overflow: hidden; }
-.doc table.frontmatter th, .doc table.frontmatter td { border: 0; border-top: 1px solid var(--border, #e5e5e5); padding: 0.5em 0.9em; background: transparent; }
-.doc table.frontmatter tr:first-child th, .doc table.frontmatter tr:first-child td { border-top: 0; }
-.doc table.frontmatter th { width: 1%; white-space: nowrap; font-weight: 500; color: var(--muted-foreground, #737373); background: var(--muted, #f5f5f5); }
+.doc dl.frontmatter { display: grid; grid-template-columns: max-content minmax(0, 1fr); column-gap: 1.6em; row-gap: 0.5em; align-items: baseline; margin: 0 0 1.5em; padding: 0.85em 1.1em; border: 1px solid var(--border, #e5e5e5); border-radius: 10px; font-size: 0.9em; line-height: 1.5; }
+.doc dl.frontmatter .fm-row { display: contents; }
+.doc dl.frontmatter dt { color: var(--muted-foreground, #737373); font-weight: 500; white-space: nowrap; }
+.doc dl.frontmatter dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.doc dl.frontmatter .fm-tag { display: inline-block; margin: 0 0.4em 0.15em 0; padding: 0.05em 0.6em; border-radius: 999px; background: var(--muted, #f5f5f5); font-size: 0.88em; }
 .doc figure.video iframe, .doc figure.video video { width: 100%; aspect-ratio: 16 / 9; height: auto; border: 0; background: #000; }
 .doc figcaption { font-size: 0.85em; color: var(--muted-foreground, #737373); margin-top: 0.4em; }
 .doc .video-placeholder { display: none; }
@@ -120,8 +121,9 @@
   .doc details:not([open]) > :not(summary) { display: block; }
   .doc .markdown-alert { background: #f5f5f5; border-color: #e5e5e5; }
   .doc .markdown-alert::before { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .doc table.frontmatter, .doc table.frontmatter th, .doc table.frontmatter td { border-color: #e5e5e5; }
-  .doc table.frontmatter th { background: #f5f5f5; }
+  .doc dl.frontmatter { border-color: #e5e5e5; break-inside: avoid; }
+  .doc dl.frontmatter dt { color: #737373; }
+  .doc dl.frontmatter .fm-tag { background: #f5f5f5; }
   .doc kbd { border-color: #e5e5e5; background: #f5f5f5; }
   .doc a.ref { border-color: #e5e5e5; break-inside: avoid; }
   .doc a.ref .ref-provider, .doc a.ref .ref-title { color: #171717; }
