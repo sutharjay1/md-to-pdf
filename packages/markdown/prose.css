@@ -116,7 +116,7 @@
 @media print {
   .doc { color: #171717; font-size: 11pt; line-height: 1.55; }
   .doc h1, .doc h2, .doc h3, .doc h4 { break-after: avoid; }
-  .doc pre, .doc figure, .doc blockquote, .doc img, .doc tr, .doc .markdown-alert, .doc details { break-inside: avoid; }
+  .doc pre, .doc figure, .doc blockquote, .doc img, .doc tr, .doc .markdown-alert, .doc details, .doc dl.frontmatter { break-inside: avoid; }
   .doc details { border-color: #e5e5e5; }
   .doc details:not([open]) > :not(summary) { display: block; }
   .doc .markdown-alert { background: #f5f5f5; border-color: #e5e5e5; }
