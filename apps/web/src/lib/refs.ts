@@ -46,21 +46,20 @@ function fill(anchor: Element, details: RefDetails): void {
     el.textContent = text;
     return el;
   };
-  const meta = anchor.querySelector(".ref-meta");
-  const title = span("ref-title", details.title);
-  if (meta) anchor.insertBefore(title, meta);
-  else anchor.append(title);
-  anchor.setAttribute("title", details.title);
-  if (!meta) return;
   const state = span("ref-state", details.state[0].toUpperCase() + details.state.slice(1));
   state.dataset.state = details.state;
-  meta.prepend(state);
-  if (details.author) meta.append(span("ref-author", details.author));
+  const main = span("ref-main", "");
+  main.append(state, span("ref-title", details.title));
+  anchor.prepend(main);
+  anchor.setAttribute("title", details.title);
+  const side = span("ref-side", "");
+  if (details.author) side.append(span("ref-author", details.author));
   const date = details.createdAt ? formatDate(details.createdAt) : "";
-  if (date) meta.append(span("ref-date", date));
+  if (date) side.append(span("ref-date", date));
   if (typeof details.comments === "number" && details.comments > 0) {
-    meta.append(span("ref-comments", `${details.comments} ${details.comments === 1 ? "comment" : "comments"}`));
+    side.append(span("ref-comments", `${details.comments} ${details.comments === 1 ? "comment" : "comments"}`));
   }
+  if (side.childElementCount) anchor.querySelector(".ref-head")?.append(side);
 }
 
 /**

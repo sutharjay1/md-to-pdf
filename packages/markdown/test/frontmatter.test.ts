@@ -18,6 +18,11 @@ it("parses scalars, quoted values, inline lists and block lists", () => {
   expect(body).toBe("\n# Body");
 });
 
+it("tolerates a BOM or blank lines before the block and a dotted close", () => {
+  expect(splitFrontMatter("\uFEFF\n\n---\ntitle: A\n...\nbody").fields).toEqual([["title", "A"]]);
+  expect(splitFrontMatter("\n---\ntitle: A\n---\r\nbody").body).toBe("body");
+});
+
 it("renders an escaped table and nothing for no fields", () => {
   expect(frontMatterHtml([])).toBe("");
   const html = frontMatterHtml([["title", "<b>"]]);

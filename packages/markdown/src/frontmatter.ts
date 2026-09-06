@@ -1,6 +1,6 @@
 import { escapeHtml } from "./highlight";
 
-const BLOCK = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
+const BLOCK = /^\uFEFF?(?:[ \t]*\r?\n)*---[ \t]*\r?\n([\s\S]*?)\r?\n(?:---|\.\.\.)[ \t]*(?:\r?\n|$)/;
 
 export type FrontMatter = { fields: [string, string][]; body: string };
 
