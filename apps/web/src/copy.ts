@@ -13,6 +13,8 @@ export const copy = {
   pageSizes: { A4: "A4", Letter: "Letter" },
   pageSize: "Page size",
   settings: "Settings",
+  enterFullscreen: "Full screen",
+  exitFullscreen: "Exit full screen",
   xHandle: "sutharjay0",
   panes: "Panes",
   syncScroll: "Sync scrolling",

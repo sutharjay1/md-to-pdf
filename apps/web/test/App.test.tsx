@@ -85,3 +85,16 @@ it("keeps the indexable title until the reader has a document of their own", () 
   fireEvent.change(screen.getByRole("textbox"), { target: { value: "# Quarterly report\n\nhi" } });
   expect(document.title).toBe("Quarterly report · MD to PDF");
 });
+
+it("hides the editor in full screen, and Escape brings it back", () => {
+  render(<App />);
+  const editor = document.getElementById("editor")!.closest("section")!;
+  expect(editor.className).not.toContain("lg:hidden");
+
+  fireEvent.click(screen.getByRole("button", { name: copy.enterFullscreen }));
+  expect(editor.className).toContain("lg:hidden");
+  expect(screen.getByRole("button", { name: copy.exitFullscreen })).toHaveAttribute("aria-pressed", "true");
+
+  fireEvent.keyDown(window, { key: "Escape" });
+  expect(editor.className).not.toContain("lg:hidden");
+});

@@ -4,6 +4,7 @@ import { TooltipProvider } from "@md-to-pdf/ui/components/tooltip";
 import { filenameFrom, titleFrom } from "@md-to-pdf/markdown";
 import { AppBar } from "@/components/AppBar";
 import { EditorPane } from "@/components/EditorPane";
+import { FullscreenToggle } from "@/components/FullscreenToggle";
 import { Pane } from "@/components/Pane";
 import { PreviewView } from "@/components/PreviewView";
 import { SegmentedControl, type View } from "@/components/SegmentedControl";
@@ -40,6 +41,8 @@ export default function App() {
   const [refs, setRefs] = useState<LinkStyle>(() => loadPrefs().refs);
   const [links, setLinks] = useState<LinkStyle>(() => loadPrefs().links);
   const [syncScroll, setSyncScroll] = useState(() => loadPrefs().syncScroll);
+  // Desktop only: the preview takes the whole workspace and the editor steps aside.
+  const [fullscreen, setFullscreen] = useState(false);
   const html = useRendered(doc, { refs, links });
   const pdf = usePdf(html, page);
   const { theme, toggle: toggleTheme } = useTheme();
@@ -59,13 +62,18 @@ export default function App() {
         return;
       }
       if (e.metaKey || e.ctrlKey || e.altKey || e.isComposing) return;
-      if (key !== THEME_KEY || isTyping(e.target)) return;
+      if (isTyping(e.target)) return;
+      if (e.key === "Escape" && fullscreen) {
+        setFullscreen(false);
+        return;
+      }
+      if (key !== THEME_KEY) return;
       e.preventDefault();
       toggleTheme();
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [pdf.download, pdf.status, doc, toggleTheme]);
+  }, [pdf.download, pdf.status, doc, toggleTheme, fullscreen]);
 
   function onPageChange(next: Page) {
     setPage(next);
@@ -110,18 +118,19 @@ export default function App() {
             onLinksChange={onLinksChange}
           />
         </div>
-        <main className="min-h-0 flex-1 grid grid-rows-[minmax(0,1fr)] grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <main className={`min-h-0 flex-1 grid grid-rows-[minmax(0,1fr)] grid-cols-[minmax(0,1fr)] ${fullscreen ? "" : "lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"}`}>
           <EditorPane
             doc={doc}
             onChange={setDoc}
             textRef={scroll.editor}
-            className={`lg:border-r ${view === "write" ? "" : "hidden lg:flex"}`}
+            className={`lg:border-r ${view === "write" ? "" : "hidden"} ${fullscreen ? "lg:hidden" : "lg:flex"}`}
           />
           <Pane
             header={
               <>
                 <span className="text-muted-foreground">{copy.tabs.preview}</span>
-                <span className="hidden lg:flex items-center">
+                <span className="hidden lg:flex items-center gap-1">
+                  <FullscreenToggle on={fullscreen} onToggle={() => setFullscreen((on) => !on)} />
                   <SettingsMenu
             syncScroll={syncScroll}
             onSyncScrollChange={onSyncScrollChange}
