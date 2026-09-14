@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup, useDefaultLayout } from "@md-to-pdf/ui/components/resizable";
 import { Toaster } from "@md-to-pdf/ui/components/sonner";
 import { TooltipProvider } from "@md-to-pdf/ui/components/tooltip";
 import { filenameFrom, titleFrom } from "@md-to-pdf/markdown";
@@ -16,7 +17,7 @@ import { usePdf } from "@/hooks/usePdf";
 import { useRendered } from "@/hooks/useRendered";
 import { useSyncedScroll } from "@/hooks/useSyncedScroll";
 import { useTheme } from "@/hooks/useTheme";
-import { loadPrefs, savePrefs, type LinkStyle, type Page } from "@/lib/storage";
+import { layoutStorage, loadPrefs, savePrefs, type LinkStyle, type Page } from "@/lib/storage";
 
 const SAVE_KEY = "s";
 const THEME_KEY = "d";
@@ -47,6 +48,7 @@ export default function App() {
   const pdf = usePdf(html, page);
   const { theme, toggle: toggleTheme } = useTheme();
   const scroll = useSyncedScroll(syncScroll);
+  const panes = useDefaultLayout({ id: "md2pdf:panes", storage: layoutStorage });
 
   useEffect(() => {
     document.title = isWelcome ? copy.siteTitle : copy.title(titleFrom(doc));
@@ -118,37 +120,46 @@ export default function App() {
             onLinksChange={onLinksChange}
           />
         </div>
-        <main className={`min-h-0 flex-1 grid grid-rows-[minmax(0,1fr)] grid-cols-[minmax(0,1fr)] ${fullscreen ? "" : "lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"}`}>
-          <EditorPane
-            doc={doc}
-            onChange={setDoc}
-            textRef={scroll.editor}
-            className={`lg:border-r ${view === "write" ? "" : "hidden"} ${fullscreen ? "lg:hidden" : "lg:flex"}`}
-          />
-          <Pane
-            header={
-              <>
-                <span className="text-muted-foreground">{copy.tabs.preview}</span>
-                <span className="hidden lg:flex items-center gap-1">
-                  <FullscreenToggle on={fullscreen} onToggle={() => setFullscreen((on) => !on)} />
-                  <SettingsMenu
-            syncScroll={syncScroll}
-            onSyncScrollChange={onSyncScrollChange}
-            page={page}
-            onPageChange={onPageChange}
-            refs={refs}
-            onRefsChange={onRefsChange}
-            links={links}
-            onLinksChange={onLinksChange}
-          />
-                </span>
-              </>
-            }
-            className={view === "write" ? "hidden lg:flex" : ""}
-            scrollRef={scroll.preview}
+        <main className="min-h-0 flex-1">
+          {/* Both panes stay mounted so the editor keeps its undo history and scroll sync keeps its elements.
+              The library sets display inline on each panel, so hiding one takes !important. */}
+          <ResizablePanelGroup
+            orientation="horizontal"
+            defaultLayout={panes.defaultLayout}
+            onLayoutChanged={panes.onLayoutChanged}
+            className={`${view === "write" ? "max-lg:[&>#pane-preview]:hidden!" : "max-lg:[&>#pane-write]:hidden!"} ${fullscreen ? "lg:[&>#pane-write]:hidden!" : ""}`}
           >
-            <PreviewView html={html} />
-          </Pane>
+            <ResizablePanel id="pane-write" defaultSize="50" minSize="20">
+              <EditorPane doc={doc} onChange={setDoc} textRef={scroll.editor} className="h-full" />
+            </ResizablePanel>
+            <ResizableHandle className={fullscreen ? "hidden!" : "max-lg:hidden!"} />
+            <ResizablePanel id="pane-preview" defaultSize="50" minSize="20">
+              <Pane
+                header={
+                  <>
+                    <span className="text-muted-foreground">{copy.tabs.preview}</span>
+                    <span className="hidden lg:flex items-center gap-1">
+                      <FullscreenToggle on={fullscreen} onToggle={() => setFullscreen((on) => !on)} />
+                      <SettingsMenu
+                        syncScroll={syncScroll}
+                        onSyncScrollChange={onSyncScrollChange}
+                        page={page}
+                        onPageChange={onPageChange}
+                        refs={refs}
+                        onRefsChange={onRefsChange}
+                        links={links}
+                        onLinksChange={onLinksChange}
+                      />
+                    </span>
+                  </>
+                }
+                className="h-full"
+                scrollRef={scroll.preview}
+              >
+                <PreviewView html={html} />
+              </Pane>
+            </ResizablePanel>
+          </ResizablePanelGroup>
         </main>
         <Toaster position="bottom-center" theme={theme} />
       </div>

@@ -2,7 +2,8 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 import path from "node:path";
 
-const LIMIT = 150 * 1024;
+// Raised from 150 when the panes became resizable: react-resizable-panels is about 12 KB of it.
+const LIMIT = 160 * 1024;
 const dir = path.resolve("dist/assets");
 const html = readFileSync(path.resolve("dist/index.html"), "utf8");
 const initial = [...html.matchAll(/src="\/assets\/([^"]+\.js)"/g)].map((m) => m[1]);

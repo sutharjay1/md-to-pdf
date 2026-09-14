@@ -88,13 +88,14 @@ it("keeps the indexable title until the reader has a document of their own", () 
 
 it("hides the editor in full screen, and Escape brings it back", () => {
   render(<App />);
-  const editor = document.getElementById("editor")!.closest("section")!;
-  expect(editor.className).not.toContain("lg:hidden");
+  const group = document.querySelector("[data-group]")!;
+  const hidesEditor = "lg:[&>#pane-write]:hidden!";
+  expect(group).not.toHaveClass(hidesEditor);
 
   fireEvent.click(screen.getByRole("button", { name: copy.enterFullscreen }));
-  expect(editor.className).toContain("lg:hidden");
+  expect(group).toHaveClass(hidesEditor);
   expect(screen.getByRole("button", { name: copy.exitFullscreen })).toHaveAttribute("aria-pressed", "true");
 
   fireEvent.keyDown(window, { key: "Escape" });
-  expect(editor.className).not.toContain("lg:hidden");
+  expect(group).not.toHaveClass(hidesEditor);
 });

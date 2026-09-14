@@ -30,6 +30,9 @@ export function saveDoc(doc: string): void {
   write(KEYS.doc, doc);
 }
 
+/** Where the pane split is kept; the same guarded access as everything else here. */
+export const layoutStorage = { getItem: read, setItem: write };
+
 export function loadPrefs(): Prefs {
   const theme = read(KEYS.theme);
   const page = read(KEYS.page);
