@@ -78,23 +78,15 @@ async function optionalExtensions(math: boolean, emoji: boolean, alert: boolean)
   return list;
 }
 
-const instances = new Map<string, Promise<Marked>>();
-
-function instanceFor(markdown: string, opts: Required<RenderOptions>): Promise<Marked> {
-  const math = HAS_MATH.test(markdown);
-  const emoji = HAS_EMOJI.test(markdown);
-  const alert = HAS_ALERT.test(markdown);
-  const key = `${math}:${emoji}:${alert}:${opts.refs}:${opts.links}`;
-  let instance = instances.get(key);
-  if (!instance) {
-    instance = optionalExtensions(math, emoji, alert).then((extra) => new Marked(...extra, ...baseExtensions(opts)));
-    instances.set(key, instance);
-  }
-  return instance;
-}
-
+/**
+ * A parser per render, not one kept per set of options: a `Marked` instance carries the state of the document
+ * it is lexing, so two renders overlapping on one instance read each other's half-built tokens and throw. The
+ * cost is building the extensions again; the payloads behind them are imported once and cached by the loader.
+ */
 export async function render(markdown: string, options: RenderOptions = {}): Promise<string> {
   const { fields, body } = splitFrontMatter(markdown);
-  const marked = await instanceFor(body, { ...DEFAULTS, ...options });
+  const opts: Required<RenderOptions> = { ...DEFAULTS, ...options };
+  const extra = await optionalExtensions(HAS_MATH.test(body), HAS_EMOJI.test(body), HAS_ALERT.test(body));
+  const marked = new Marked(...extra, ...baseExtensions(opts));
   return frontMatterHtml(fields) + (await marked.parse(body, { async: true }));
 }

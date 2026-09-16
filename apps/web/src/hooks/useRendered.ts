@@ -38,7 +38,13 @@ export function useRendered(doc: string, options: RenderOptions = {}): string {
     let cancelled = false;
     const bump = () => setCardsVersion((v) => v + 1);
     const key = `${refs} ${links} ${doc}`;
-    const timer = setTimeout(async () => {
+    const timer = setTimeout(() => {
+      // Whatever a render throws stays here: the last good html keeps showing, rather than the failure
+      // travelling up as an unhandled rejection with nothing above to catch it.
+      void draw().catch(() => {});
+    }, 80);
+
+    async function draw() {
       if (base.current?.key === key) {
         const filled = await withCards(base.current.html, bump);
         if (!cancelled) setHtml(filled);
@@ -59,7 +65,8 @@ export function useRendered(doc: string, options: RenderOptions = {}): string {
       base.current = { key, html: drawn };
       const out = await withCards(drawn, bump);
       if (!cancelled) setHtml(out);
-    }, 80);
+    }
+
     return () => {
       cancelled = true;
       clearTimeout(timer);
