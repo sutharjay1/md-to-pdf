@@ -1,4 +1,12 @@
-import { useCallback, useRef, useState, useSyncExternalStore, type KeyboardEvent, type PointerEvent } from "react";
+import {
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type KeyboardEvent,
+  type PointerEvent,
+} from "react";
 import { RotateCw, X, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@md-to-pdf/ui/components/button";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@md-to-pdf/ui/components/dialog";
@@ -29,6 +37,10 @@ function subscribeResize(onChange: () => void) {
   return () => window.removeEventListener("resize", onChange);
 }
 
+function reducedMotion(): boolean {
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+}
+
 type Props = { media: Media | null; onClose: () => void };
 
 export function MediaViewer({ media, onClose }: Props) {
@@ -42,20 +54,67 @@ export function MediaViewer({ media, onClose }: Props) {
 function Viewer({ media, onClose }: { media: Media; onClose: () => void }) {
   const vw = useSyncExternalStore(subscribeResize, () => window.innerWidth);
   const vh = useSyncExternalStore(subscribeResize, () => window.innerHeight);
-  const [view, setView] = useState<View>(START);
-  const [rotation, setRotation] = useState(0);
+  /** Only what the toolbar shows is state. Panning, zooming and turning write the transform themselves. */
+  const [percent, setPercent] = useState(100);
   const [panning, setPanning] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const mediaRef = useRef<HTMLDivElement>(null);
+  const view = useRef<View>(START);
+  const rotation = useRef(0);
   const press = useRef<{ x: number; y: number; ox: number; oy: number; onMedia: boolean; moved: boolean } | null>(null);
+  const frame = useRef(0);
 
-  /** Zooms by a factor, keeping the point (px, py), measured from the stage centre, where it is. */
-  const zoomBy = useCallback((factor: number, px = 0, py = 0) => {
-    setView((v) => {
-      const zoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, v.zoom * factor));
-      const k = zoom / v.zoom;
-      return { zoom, x: px - (px - v.x) * k, y: py - (py - v.y) * k };
+  const pad = media.kind === "diagram" ? SURFACE_PAD * 2 : 0;
+  const roomW = Math.max(vw - ROOM_X - pad, 1);
+  const roomH = Math.max(vh - ROOM_Y - pad, 1);
+  const known = media.width > 0 && media.height > 0;
+  // A photo blown up past its own pixels only gets blurrier; a diagram is vector and fills the screen cleanly.
+  const ceiling = media.kind === "image" ? 1 : Infinity;
+  const fit = known ? Math.min(roomW / media.width, roomH / media.height, ceiling) : 1;
+  const fitSideways = known ? Math.min(roomW / media.height, roomH / media.width, ceiling) : 1;
+  // Turning the media does not resize its box — that would relayout the whole drawing mid-animation. The
+  // fit it needs on its side rides along in the transform instead, so a quarter turn is pure compositing.
+  const sidewaysRef = useRef(1);
+  sidewaysRef.current = fitSideways / fit;
+
+  const apply = useCallback((animate: boolean) => {
+    const el = mediaRef.current;
+    if (!el) return;
+    const { zoom, x, y } = view.current;
+    const deg = rotation.current;
+    const scale = zoom * (deg % 180 !== 0 ? sidewaysRef.current : 1);
+    el.style.transition = animate && !reducedMotion() ? "transform var(--dur-move) var(--ease-out-expo)" : "none";
+    el.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${deg}deg)`;
+  }, []);
+
+  /** The percentage is for reading, so it follows at most once a frame rather than once an event. */
+  const showPercent = useCallback(() => {
+    if (frame.current) return;
+    frame.current = requestAnimationFrame(() => {
+      frame.current = 0;
+      setPercent(Math.round(view.current.zoom * 100));
     });
   }, []);
+
+  /** Zooms by a factor, keeping the point (px, py), measured from the stage centre, where it is. */
+  const zoomBy = useCallback(
+    (factor: number, px = 0, py = 0, animate = true) => {
+      const v = view.current;
+      const zoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, v.zoom * factor));
+      const k = zoom / v.zoom;
+      view.current = { zoom, x: px - (px - v.x) * k, y: py - (py - v.y) * k };
+      apply(animate);
+      showPercent();
+    },
+    [apply, showPercent],
+  );
+
+  // The fitted box changes with the window, and so does the scale a turned drawing needs.
+  useLayoutEffect(() => {
+    apply(false);
+  }, [apply, fit, fitSideways]);
+
+  useLayoutEffect(() => () => cancelAnimationFrame(frame.current), []);
 
   // Wheel zoom needs a listener that can cancel, or a trackpad pinch zooms the whole page instead.
   const stageRef = useCallback(
@@ -64,7 +123,10 @@ function Viewer({ media, onClose }: { media: Media; onClose: () => void }) {
       const onWheel = (e: WheelEvent) => {
         e.preventDefault();
         const rect = stage.getBoundingClientRect();
-        zoomBy(Math.exp(-e.deltaY * 0.0015), e.clientX - rect.left - rect.width / 2, e.clientY - rect.top - rect.height / 2);
+        const px = e.clientX - rect.left - rect.width / 2;
+        const py = e.clientY - rect.top - rect.height / 2;
+        // No transition on the wheel: each notch would fight the last one's easing.
+        zoomBy(Math.exp(-e.deltaY * 0.0015), px, py, false);
       };
       stage.addEventListener("wheel", onWheel, { passive: false });
       return () => stage.removeEventListener("wheel", onWheel);
@@ -72,8 +134,16 @@ function Viewer({ media, onClose }: { media: Media; onClose: () => void }) {
     [zoomBy],
   );
 
-  const reset = () => setView(START);
-  const rotate = () => setRotation((r) => r + 90);
+  function reset() {
+    view.current = START;
+    apply(true);
+    showPercent();
+  }
+
+  function rotate() {
+    rotation.current += 90;
+    apply(true);
+  }
 
   function onKeyDown(e: KeyboardEvent) {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -94,7 +164,8 @@ function Viewer({ media, onClose }: { media: Media; onClose: () => void }) {
     if (e.button !== 0) return;
     e.currentTarget.setPointerCapture?.(e.pointerId);
     const onMedia = e.target instanceof Element && e.target.closest("[data-viewer-media]") !== null;
-    press.current = { x: e.clientX, y: e.clientY, ox: view.x, oy: view.y, onMedia, moved: false };
+    const { x, y } = view.current;
+    press.current = { x: e.clientX, y: e.clientY, ox: x, oy: y, onMedia, moved: false };
   }
 
   function onPointerMove(e: PointerEvent<HTMLDivElement>) {
@@ -103,32 +174,22 @@ function Viewer({ media, onClose }: { media: Media; onClose: () => void }) {
     const dx = e.clientX - p.x;
     const dy = e.clientY - p.y;
     if (!p.moved && Math.hypot(dx, dy) < CLICK_SLOP) return;
+    if (!p.moved) setPanning(true);
     p.moved = true;
-    setPanning(true);
-    setView((v) => ({ ...v, x: p.ox + dx, y: p.oy + dy }));
+    view.current = { ...view.current, x: p.ox + dx, y: p.oy + dy };
+    apply(false);
   }
 
   function onPointerUp() {
     const p = press.current;
     press.current = null;
-    setPanning(false);
+    if (p?.moved) setPanning(false);
     // A press on the backdrop that did not travel is a click away from the media.
     if (p && !p.moved && !p.onMedia) onClose();
   }
 
-  const pad = media.kind === "diagram" ? SURFACE_PAD * 2 : 0;
-  const roomW = Math.max(vw - ROOM_X - pad, 1);
-  const roomH = Math.max(vh - ROOM_Y - pad, 1);
-  const known = media.width > 0 && media.height > 0;
-  const sideways = rotation % 180 !== 0;
-  let fit = known
-    ? Math.min(roomW / (sideways ? media.height : media.width), roomH / (sideways ? media.width : media.height))
-    : 1;
-  // A photo blown up past its own pixels only gets blurrier; a diagram is vector and fills the screen cleanly.
-  if (media.kind === "image") fit = Math.min(fit, 1);
   const size = known ? { width: media.width * fit, height: media.height * fit } : { maxWidth: roomW, maxHeight: roomH };
   const label = media.kind === "image" ? media.alt || copy.viewer.image : copy.viewer.diagram;
-  const percent = `${Math.round(view.zoom * 100)}%`;
 
   return (
     <DialogContent
@@ -156,11 +217,7 @@ function Viewer({ media, onClose }: { media: Media; onClose: () => void }) {
         }}
         className={`relative flex min-h-0 flex-1 touch-none items-center justify-center overflow-hidden ${panning ? "cursor-grabbing" : "cursor-grab"}`}
       >
-        <div
-          data-viewer-media
-          style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom}) rotate(${rotation}deg)` }}
-          className={`${panning ? "" : "transition-transform duration-(--dur-move) ease-(--ease-out-expo)"} motion-reduce:transition-none`}
-        >
+        <div ref={mediaRef} data-viewer-media className="will-change-transform [backface-visibility:hidden]">
           {media.kind === "image" ? (
             <img src={media.src} alt={media.alt} draggable={false} style={size} className="block max-w-none select-none" />
           ) : (
@@ -177,7 +234,7 @@ function Viewer({ media, onClose }: { media: Media; onClose: () => void }) {
 
       <div className="flex shrink-0 justify-center pt-2 pb-6">
         <div className="flex h-10 items-center gap-0.5 rounded-full border bg-popover px-1.5 text-popover-foreground shadow-lg">
-          <ToolButton label={copy.viewer.zoomOut} onClick={() => zoomBy(1 / STEP)} disabled={view.zoom <= MIN_ZOOM}>
+          <ToolButton label={copy.viewer.zoomOut} onClick={() => zoomBy(1 / STEP)} disabled={percent <= MIN_ZOOM * 100}>
             <ZoomOut />
           </ToolButton>
           <Tooltip>
@@ -186,15 +243,15 @@ function Viewer({ media, onClose }: { media: Media; onClose: () => void }) {
                 variant="ghost"
                 size="sm"
                 className="h-7 w-14 px-0 text-[13px] tabular-nums"
-                aria-label={`${copy.viewer.resetZoom}, ${percent}`}
+                aria-label={`${copy.viewer.resetZoom}, ${percent}%`}
                 onClick={reset}
               >
-                {percent}
+                {percent}%
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top">{copy.viewer.resetZoom}</TooltipContent>
           </Tooltip>
-          <ToolButton label={copy.viewer.zoomIn} onClick={() => zoomBy(STEP)} disabled={view.zoom >= MAX_ZOOM}>
+          <ToolButton label={copy.viewer.zoomIn} onClick={() => zoomBy(STEP)} disabled={percent >= MAX_ZOOM * 100}>
             <ZoomIn />
           </ToolButton>
           <span className="mx-1 h-4 w-px bg-border" aria-hidden />

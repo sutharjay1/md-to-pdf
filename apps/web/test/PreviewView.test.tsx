@@ -11,7 +11,8 @@ it("opens a picture in the viewer, where it zooms and turns", async () => {
   expect(within(dialog).getByRole("img", { name: "A cat" })).toBeInTheDocument();
 
   fireEvent.click(within(dialog).getByRole("button", { name: copy.viewer.zoomIn }));
-  expect(within(dialog).getByRole("button", { name: new RegExp(copy.viewer.resetZoom) })).toHaveTextContent("125%");
+  // The picture turns on the click; the percentage catches up on the next frame.
+  expect(await within(dialog).findByRole("button", { name: `${copy.viewer.resetZoom}, 125%` })).toHaveTextContent("125%");
 
   fireEvent.click(within(dialog).getByRole("button", { name: copy.viewer.rotate }));
   expect(dialog.querySelector<HTMLElement>("[data-viewer-media]")!.style.transform).toContain("rotate(90deg)");
