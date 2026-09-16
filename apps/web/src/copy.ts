@@ -23,7 +23,6 @@ export const copy = {
     zoomIn: "Zoom in",
     zoomOut: "Zoom out",
     resetZoom: "Reset zoom",
-    rotate: "Rotate",
     close: "Close",
   },
   xHandle: "sutharjay0",

@@ -45,8 +45,12 @@ export function useRendered(doc: string, options: RenderOptions = {}): string {
         return;
       }
       const parsed = await render(doc, { refs, links });
+      // Every await is a chance for the caller to have gone: filling cards touches the DOM, and carrying on
+      // after unmount is work nobody reads.
+      if (cancelled) return;
       // Paint the words as soon as they exist; undrawn diagrams arrive in a second pass.
       if (await diagramsPending(parsed)) {
+        if (cancelled) return;
         const early = await withCards(parsed, bump);
         if (!cancelled) setHtml(early);
       }

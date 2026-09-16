@@ -3,7 +3,7 @@ import { TooltipProvider } from "@md-to-pdf/ui/components/tooltip";
 import { PreviewView } from "@/components/PreviewView";
 import { copy } from "@/copy";
 
-it("opens a picture in the viewer, where it zooms and turns", async () => {
+it("opens a picture in the viewer, where it zooms", async () => {
   render(<PreviewView html={'<p><img src="/cat.png" alt="A cat"></p>'} />, { wrapper: TooltipProvider });
   fireEvent.click(screen.getByRole("button", { name: copy.viewer.openImage("A cat") }));
 
@@ -11,11 +11,9 @@ it("opens a picture in the viewer, where it zooms and turns", async () => {
   expect(within(dialog).getByRole("img", { name: "A cat" })).toBeInTheDocument();
 
   fireEvent.click(within(dialog).getByRole("button", { name: copy.viewer.zoomIn }));
-  // The picture turns on the click; the percentage catches up on the next frame.
+  // The picture scales on the click; the percentage catches up on the next frame.
+  expect(dialog.querySelector<HTMLElement>("[data-viewer-media]")!.style.transform).toContain("scale(1.25)");
   expect(await within(dialog).findByRole("button", { name: `${copy.viewer.resetZoom}, 125%` })).toHaveTextContent("125%");
-
-  fireEvent.click(within(dialog).getByRole("button", { name: copy.viewer.rotate }));
-  expect(dialog.querySelector<HTMLElement>("[data-viewer-media]")!.style.transform).toContain("rotate(90deg)");
 });
 
 it("opens a drawn diagram from the keyboard", async () => {

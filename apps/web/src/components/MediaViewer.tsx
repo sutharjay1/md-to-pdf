@@ -7,7 +7,7 @@ import {
   type KeyboardEvent,
   type PointerEvent,
 } from "react";
-import { RotateCw, X, ZoomIn, ZoomOut } from "lucide-react";
+import { X, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@md-to-pdf/ui/components/button";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@md-to-pdf/ui/components/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@md-to-pdf/ui/components/tooltip";
@@ -54,13 +54,12 @@ export function MediaViewer({ media, onClose }: Props) {
 function Viewer({ media, onClose }: { media: Media; onClose: () => void }) {
   const vw = useSyncExternalStore(subscribeResize, () => window.innerWidth);
   const vh = useSyncExternalStore(subscribeResize, () => window.innerHeight);
-  /** Only what the toolbar shows is state. Panning, zooming and turning write the transform themselves. */
+  /** Only what the toolbar shows is state. Panning and zooming write the transform themselves. */
   const [percent, setPercent] = useState(100);
   const [panning, setPanning] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const mediaRef = useRef<HTMLDivElement>(null);
   const view = useRef<View>(START);
-  const rotation = useRef(0);
   const press = useRef<{ x: number; y: number; ox: number; oy: number; onMedia: boolean; moved: boolean } | null>(null);
   const frame = useRef(0);
 
@@ -71,20 +70,15 @@ function Viewer({ media, onClose }: { media: Media; onClose: () => void }) {
   // A photo blown up past its own pixels only gets blurrier; a diagram is vector and fills the screen cleanly.
   const ceiling = media.kind === "image" ? 1 : Infinity;
   const fit = known ? Math.min(roomW / media.width, roomH / media.height, ceiling) : 1;
-  const fitSideways = known ? Math.min(roomW / media.height, roomH / media.width, ceiling) : 1;
-  // Turning the media does not resize its box — that would relayout the whole drawing mid-animation. The
-  // fit it needs on its side rides along in the transform instead, so a quarter turn is pure compositing.
-  const sidewaysRef = useRef(1);
-  sidewaysRef.current = fitSideways / fit;
 
+  // Zooming and panning never resize the box — that would relayout the whole drawing mid-gesture. The box is
+  // fitted once and everything after that is a transform on a promoted layer, which is pure compositing.
   const apply = useCallback((animate: boolean) => {
     const el = mediaRef.current;
     if (!el) return;
     const { zoom, x, y } = view.current;
-    const deg = rotation.current;
-    const scale = zoom * (deg % 180 !== 0 ? sidewaysRef.current : 1);
     el.style.transition = animate && !reducedMotion() ? "transform var(--dur-move) var(--ease-out-expo)" : "none";
-    el.style.transform = `translate(${x}px, ${y}px) scale(${scale}) rotate(${deg}deg)`;
+    el.style.transform = `translate(${x}px, ${y}px) scale(${zoom})`;
   }, []);
 
   /** The percentage is for reading, so it follows at most once a frame rather than once an event. */
@@ -109,10 +103,10 @@ function Viewer({ media, onClose }: { media: Media; onClose: () => void }) {
     [apply, showPercent],
   );
 
-  // The fitted box changes with the window, and so does the scale a turned drawing needs.
+  // The fitted box changes with the window, so the transform is written again after a resize.
   useLayoutEffect(() => {
     apply(false);
-  }, [apply, fit, fitSideways]);
+  }, [apply, fit]);
 
   useLayoutEffect(() => () => cancelAnimationFrame(frame.current), []);
 
@@ -140,11 +134,6 @@ function Viewer({ media, onClose }: { media: Media; onClose: () => void }) {
     showPercent();
   }
 
-  function rotate() {
-    rotation.current += 90;
-    apply(true);
-  }
-
   function onKeyDown(e: KeyboardEvent) {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     const actions: Record<string, () => void> = {
@@ -152,9 +141,8 @@ function Viewer({ media, onClose }: { media: Media; onClose: () => void }) {
       "=": () => zoomBy(STEP),
       "-": () => zoomBy(1 / STEP),
       "0": reset,
-      r: rotate,
     };
-    const act = actions[e.key.toLowerCase()];
+    const act = actions[e.key];
     if (!act) return;
     e.preventDefault();
     act();
@@ -253,10 +241,6 @@ function Viewer({ media, onClose }: { media: Media; onClose: () => void }) {
           </Tooltip>
           <ToolButton label={copy.viewer.zoomIn} onClick={() => zoomBy(STEP)} disabled={percent >= MAX_ZOOM * 100}>
             <ZoomIn />
-          </ToolButton>
-          <span className="mx-1 h-4 w-px bg-border" aria-hidden />
-          <ToolButton label={copy.viewer.rotate} onClick={rotate}>
-            <RotateCw />
           </ToolButton>
         </div>
       </div>
